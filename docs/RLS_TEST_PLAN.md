@@ -1,7 +1,7 @@
 # RLS Test Plan - CrediOS Beta
 
 Estado: pendiente de ejecucion completa con dos usuarios.
-Motivo: Supabase real ya esta conectado y migrado, pero la prueba automatica A/B fue bloqueada por rate limit de Supabase Auth antes de completar el usuario B.
+Motivo: Supabase real ya esta conectado y migrado, pero la prueba automatica A/B fue bloqueada por rate limit de Supabase Auth. El ultimo intento fallo con `email rate limit exceeded` antes de completar Usuario A.
 
 ## Objetivo
 
@@ -34,6 +34,8 @@ src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 No usar datos reales.
 
 Nota de ejecucion: si Supabase Auth responde `email rate limit exceeded`, esperar a que termine la ventana de rate limit o crear los usuarios manualmente desde el panel de Supabase Auth para continuar la prueba.
+
+Para continuar sin esperar el rate limit, crear manualmente Usuario A y Usuario B desde Supabase Dashboard > Authentication > Users, confirmar sus emails si el proyecto exige confirmacion y luego ejecutar la prueba desde la app o con clientes autenticados usando la publishable key. No usar `service_role`.
 
 ## Prueba manual desde la app
 

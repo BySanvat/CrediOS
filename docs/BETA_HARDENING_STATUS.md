@@ -85,6 +85,7 @@ El recalculo financiero sigue en TypeScript porque depende del motor puro testea
 
 - Ejecutar `docs/RLS_TEST_PLAN.md` con dos usuarios de prueba.
 - Probar pagos/abonos desde UI contra Supabase real con sesion autenticada.
+- Reintentar cuando Supabase Auth no este en rate limit o crear Usuario A/B manualmente en el dashboard.
 - Considerar tests de RLS automatizados con usuarios de prueba.
 - Revisar `npm audit` cuando Next publique version que resuelva PostCSS sin downgrade rompedor.
 
