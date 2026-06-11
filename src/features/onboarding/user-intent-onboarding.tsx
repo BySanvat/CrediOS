@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppIcon, type IconName } from "@/components/ui/app-icon";
+import { AccentPreview, AccentSwatches, persistAccentColor } from "@/features/personalization/accent-color-picker";
+import type { AccentColorId } from "@/lib/accent-theme";
 import { USAGE_MODE_COOKIE, type UsageMode, usageModeCopy } from "@/lib/usage-mode";
 import { cn } from "@/lib/utils/cn";
 
@@ -14,22 +16,38 @@ export function persistUsageMode(mode: UsageMode) {
   window.localStorage.setItem(storageKey, mode);
 }
 
-export function UserIntentOnboarding({ initialMode }: { initialMode: UsageMode | null }) {
+export function UserIntentOnboarding({
+  initialMode,
+  initialAccent,
+}: {
+  initialMode: UsageMode | null;
+  initialAccent: AccentColorId | null;
+}) {
   const router = useRouter();
-  const [open, setOpen] = useState(!initialMode);
+  const [open, setOpen] = useState(!initialMode || !initialAccent);
+  const [step, setStep] = useState<"mode" | "accent">(!initialMode ? "mode" : "accent");
+  const [accent, setAccent] = useState<AccentColorId>(initialAccent ?? "coral");
   const [saving, setSaving] = useState<UsageMode | null>(null);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey);
-    if (!initialMode && (stored === "personal" || stored === "portfolio")) {
-      persistUsageMode(stored);
-      router.refresh();
-    }
-  }, [initialMode, router]);
 
   function selectMode(mode: UsageMode) {
     setSaving(mode);
     persistUsageMode(mode);
+    setSaving(null);
+    if (!initialAccent) {
+      setStep("accent");
+      return;
+    }
+    setOpen(false);
+    router.refresh();
+  }
+
+  function selectAccent(value: AccentColorId) {
+    setAccent(value);
+    document.documentElement.dataset.accent = value;
+  }
+
+  function finishAccent() {
+    persistAccentColor(accent);
     setOpen(false);
     router.refresh();
   }
@@ -45,17 +63,35 @@ export function UserIntentOnboarding({ initialMode }: { initialMode: UsageMode |
           </span>
           <div>
             <p className="text-sm font-semibold text-accent">Primer ajuste</p>
-            <h2 className="mt-1 text-2xl font-semibold tracking-normal">Como quieres usar CrediOS?</h2>
+            <h2 className="mt-1 text-2xl font-semibold tracking-normal">
+              {step === "mode" ? "Como quieres usar CrediOS?" : "Elige el estilo de tu CrediOS"}
+            </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Esto solo ordena tu inicio y tus accesos rapidos. Todos los modulos seguiran disponibles.
+              {step === "mode"
+                ? "Esto solo ordena tu inicio y tus accesos rapidos. Todos los modulos seguiran disponibles."
+                : "Puedes cambiar este color despues en Configuracion."}
             </p>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <IntentOption mode="personal" icon="wallet" saving={saving} onSelect={selectMode} />
-          <IntentOption mode="portfolio" icon="briefcase" saving={saving} onSelect={selectMode} />
-        </div>
+        {step === "mode" ? (
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <IntentOption mode="personal" icon="wallet" saving={saving} onSelect={selectMode} />
+            <IntentOption mode="portfolio" icon="briefcase" saving={saving} onSelect={selectMode} />
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-4">
+            <AccentSwatches value={accent} onChange={selectAccent} />
+            <AccentPreview value={accent} />
+            <button
+              type="button"
+              onClick={finishAccent}
+              className="inline-flex h-11 w-full items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground transition hover:-translate-y-0.5 sm:w-fit"
+            >
+              Continuar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

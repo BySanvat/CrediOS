@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { calculateLoanSummary, moneyToCents } from "@/domain/finance";
+import { creditFriendlyPath } from "@/lib/utils/slug";
 import { getAppContext } from "@/server/context";
 
 const creditSchema = z.object({
@@ -91,7 +92,7 @@ export async function createCreditAction(formData: FormData) {
   });
 
   revalidatePath("/creditos");
-  redirect(`/creditos/${credit.id}`);
+  redirect(creditFriendlyPath(credit.id, parsed.name));
 }
 
 export async function archiveCreditAction(formData: FormData) {

@@ -17,7 +17,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{const t=localStorage.getItem('credios-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}",
+              "try{const r=document.documentElement;const t=localStorage.getItem('credios-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.classList.toggle('dark',d);const m=document.cookie.match(/(?:^|; )credios_accent_color=([^;]+)/);const a=localStorage.getItem('credios-accent-color')||(m&&decodeURIComponent(m[1]))||'coral';if(['coral','teal','lavender','sky','rose','amber','sage'].includes(a))r.dataset.accent=a}catch(e){}",
           }}
         />
       </head>

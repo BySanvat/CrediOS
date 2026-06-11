@@ -63,6 +63,10 @@ export default async function PrivateCatchAllPage({ params, searchParams }: Catc
         return <CreditDetailPage params={Promise.resolve({ id: slug[1] })} />;
       }
 
+      if (slug[0] === "creditos" && slug.length === 3 && slug[1]) {
+        return <CreditDetailPage params={Promise.resolve({ id: slug[1] })} />;
+      }
+
       notFound();
   }
 }

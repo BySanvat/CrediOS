@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { AuthForm } from "@/features/auth/auth-form";
+import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
 import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const cookieStore = await cookies();
+  const initialAccent = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "coral";
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="grid w-full justify-items-center gap-6">
@@ -17,6 +22,7 @@ export default function LoginPage() {
         <Suspense fallback={null}>
           <AuthForm
             mode="login"
+            initialAccent={initialAccent}
             supabaseConfig={{
               url: getSupabaseUrl(),
               publishableKey: getSupabasePublishableKey(),

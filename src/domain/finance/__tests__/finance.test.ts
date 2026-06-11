@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateFixedPayment,
+  calculateAccruedInterestForDays,
+  calculateDailyRateFromMonthly,
+  calculatePayoffQuote,
   calculateLoanSummary,
   convertAnnualEffectiveToMonthly,
   convertNominalAnnualToMonthly,
   generateAmortizationSchedule,
+  getInstallmentRemainingCents,
+  getNextPayableInstallment,
   moneyToCents,
   simulateExtraPaymentReducePayment,
   simulateExtraPaymentReduceTerm,
@@ -92,5 +97,63 @@ describe("financial engine", () => {
     });
     expect(result.newMonthlyPaymentCents).toBeLessThan(calculateLoanSummary(baseLoan).totalMonthlyPaymentCents);
     expect(result.interestSavingsCents).toBeGreaterThan(0);
+  });
+
+  it("does not accrue daily interest for zero days", () => {
+    const dailyRate = calculateDailyRateFromMonthly("0.02");
+    expect(calculateAccruedInterestForDays({ balanceCents: 1_000_000, dailyRate, days: 0 })).toBe(0);
+  });
+
+  it("accrues deterministic daily interest", () => {
+    const dailyRate = calculateDailyRateFromMonthly("0.02");
+    const oneDay = calculateAccruedInterestForDays({ balanceCents: 1_000_000, dailyRate, days: 1 });
+    const fifteenDays = calculateAccruedInterestForDays({ balanceCents: 1_000_000, dailyRate, days: 15 });
+
+    expect(oneDay).toBeGreaterThan(0);
+    expect(fifteenDays).toBeGreaterThan(oneDay);
+  });
+
+  it("keeps zero rate payoff quote without accrued interest", () => {
+    const quote = calculatePayoffQuote({
+      currentBalanceCents: 1_000_000,
+      rateValue: "0",
+      rateType: "monthly_effective",
+      accruesFromDate: "2026-01-01",
+      asOfDate: "2026-01-16",
+    });
+
+    expect(quote.accruedInterestCents).toBe(0);
+    expect(quote.payoffCents).toBe(1_000_000);
+  });
+
+  it("includes accrued interest in payoff quote", () => {
+    const quote = calculatePayoffQuote({
+      currentBalanceCents: 1_000_000,
+      rateValue: "2",
+      rateType: "monthly_effective",
+      accruesFromDate: "2026-01-01",
+      asOfDate: "2026-01-16",
+    });
+
+    expect(quote.days).toBe(15);
+    expect(quote.accruedInterestCents).toBeGreaterThan(0);
+    expect(quote.payoffCents).toBe(1_000_000 + quote.accruedInterestCents);
+  });
+
+  it("selects the next payable installment by late first then next pending", () => {
+    const installments = [
+      { id: "a", due_date: "2026-02-01", status: "pending", total_cents: 100_000 },
+      { id: "b", due_date: "2026-01-01", status: "pending", total_cents: 100_000 },
+    ];
+
+    expect(getNextPayableInstallment(installments, "2026-01-15")?.id).toBe("b");
+    expect(getNextPayableInstallment(installments, "2025-12-15")?.id).toBe("b");
+  });
+
+  it("calculates remaining installment amount after partial payments", () => {
+    const installment = { id: "a", due_date: "2026-01-01", status: "partial", total_cents: 100_000 };
+    const payments = [{ installment_id: "a", amount_cents: 35_000 }];
+
+    expect(getInstallmentRemainingCents(installment, payments)).toBe(65_000);
   });
 });

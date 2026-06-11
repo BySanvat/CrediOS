@@ -19,6 +19,8 @@ export type IconName =
   | "close"
   | "briefcase"
   | "home"
+  | "palette"
+  | "google"
   | "spinner";
 
 const paths: Record<Exclude<IconName, "spinner">, React.ReactNode> = {
@@ -121,6 +123,23 @@ const paths: Record<Exclude<IconName, "spinner">, React.ReactNode> = {
     <>
       <path d="M4 11 12 4l8 7" />
       <path d="M6 10v10h12V10" />
+    </>
+  ),
+  palette: (
+    <>
+      <path d="M12 3a9 9 0 0 0 0 18h1.5a2 2 0 0 0 1.5-3.3 1.7 1.7 0 0 1 1.3-2.8H18a6 6 0 0 0 0-12Z" />
+      <circle cx="7.5" cy="10" r=".7" />
+      <circle cx="10" cy="7.5" r=".7" />
+      <circle cx="13.5" cy="7.5" r=".7" />
+      <circle cx="16" cy="10" r=".7" />
+    </>
+  ),
+  google: (
+    <>
+      <path d="M20.5 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9a8.7 8.7 0 0 0 2.6-6.6Z" />
+      <path d="M12 21a8.5 8.5 0 0 0 5.9-2.2L15 16.6a5.4 5.4 0 0 1-8-2.8H4v2.3A9 9 0 0 0 12 21Z" />
+      <path d="M7 13.8a5.4 5.4 0 0 1 0-3.6V7.9H4a9 9 0 0 0 0 8.2Z" />
+      <path d="M12 6.6c1.4 0 2.6.5 3.6 1.4l2.6-2.6A8.8 8.8 0 0 0 12 3a9 9 0 0 0-8 4.9l3 2.3a5.4 5.4 0 0 1 5-3.6Z" />
     </>
   ),
 };

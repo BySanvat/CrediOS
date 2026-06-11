@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExtraPaymentForm } from "@/features/credits/extra-payment-form";
+import { SmartPaymentDialog } from "@/features/credits/smart-payment-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CurrencyInput } from "@/components/ui/financial-input";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
-import { formatMoneyCOP, type RateType } from "@/domain/finance";
-import { recordPaymentAction } from "@/server/actions/payments.actions";
+import {
+  calculatePayoffQuote,
+  formatMoneyCOP,
+  getInstallmentRemainingCents,
+  getNextPayableInstallment,
+  type RateType,
+} from "@/domain/finance";
 import { getAppContext } from "@/server/context";
 
 export default async function CreditDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,30 +55,59 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
     ["pending", "partial"].includes(item.status),
   );
   const paidAmount = (payments ?? []).reduce((sum, payment) => sum + payment.amount_cents, 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const nextPayable = getNextPayableInstallment(pendingInstallments, today, payments ?? []);
+  const nextPayableRemainingCents = nextPayable
+    ? getInstallmentRemainingCents(nextPayable, payments ?? [])
+    : 0;
+  const lastPaymentDate = (payments ?? [])
+    .map((payment) => payment.payment_date)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  const payoffQuote = calculatePayoffQuote({
+    currentBalanceCents: credit.current_balance_cents,
+    rateValue: credit.rate_value,
+    rateType: credit.rate_type as RateType,
+    accruesFromDate: lastPaymentDate ?? credit.start_date,
+    asOfDate: today,
+  });
 
   return (
     <>
       <PageHeader
         title={credit.name}
-        description={`${credit.clients?.full_name ?? "Deuda personal"} · saldo ${formatMoneyCOP(
+        description={`${credit.clients?.full_name ?? "Deuda personal"} - saldo ${formatMoneyCOP(
           credit.current_balance_cents,
         )}`}
         icon="credit"
         action={
           <Button asChild variant="secondary">
-            <Link href="/creditos">
-              Volver
-            </Link>
+            <Link href="/creditos">Volver</Link>
           </Button>
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Metric label="Principal" value={formatMoneyCOP(credit.principal_cents)} />
-        <Metric label="Saldo" value={formatMoneyCOP(credit.current_balance_cents)} />
+        <Metric label="Capital pendiente" value={formatMoneyCOP(credit.current_balance_cents)} />
+        <Metric label="Interes corrido" value={formatMoneyCOP(payoffQuote.accruedInterestCents)} />
+        <Metric label="Pago total hoy" value={formatMoneyCOP(payoffQuote.payoffCents)} />
         <Metric label="Pagado" value={formatMoneyCOP(paidAmount)} />
-        <Metric label="Estado" value={credit.status} />
       </div>
+
+      <Card className="mt-4">
+        <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">Saldo estimado al dia de hoy</p>
+            <p className="text-sm text-muted">
+              Incluye intereses corridos desde {payoffQuote.accruesFromDate} hasta {payoffQuote.asOfDate}.
+              El calculo es bajo demanda y no hace escrituras diarias.
+            </p>
+          </div>
+          <p className="text-2xl font-semibold tabular text-accent">{formatMoneyCOP(payoffQuote.payoffCents)}</p>
+        </CardContent>
+      </Card>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card>
@@ -84,7 +117,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
           </CardHeader>
           <CardContent className="overflow-x-auto">
             {(installments ?? []).length ? (
-              <table className="w-full min-w-[760px] text-left text-sm">
+              <table className="w-full min-w-[820px] text-left text-sm">
                 <thead className="text-xs uppercase text-muted">
                   <tr>
                     <th className="py-2">#</th>
@@ -95,6 +128,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
                     <th>Total</th>
                     <th>Saldo</th>
                     <th>Estado</th>
+                    <th>Accion</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,6 +146,19 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
                           {row.status}
                         </Badge>
                       </td>
+                      <td>
+                        {nextPayable?.id === row.id ? (
+                          <SmartPaymentDialog
+                            creditId={credit.id}
+                            installmentId={row.id}
+                            installmentLabel={`Cuota #${row.installment_number} - ${row.due_date}`}
+                            requiredCents={nextPayableRemainingCents}
+                            payoffCents={payoffQuote.payoffCents}
+                          />
+                        ) : (
+                          <span className="text-xs text-muted">-</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -125,38 +172,33 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
         <div className="grid gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Registrar pago</CardTitle>
-              <CardDescription>Registra pagos manuales sobre cuotas o sobre el saldo.</CardDescription>
+              <CardTitle>Pago inteligente</CardTitle>
+              <CardDescription>
+                CrediOS elige automaticamente la cuota vencida o pendiente mas cercana.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <form action={recordPaymentAction} className="grid gap-4">
-                <input type="hidden" name="creditId" value={credit.id} />
-                <Field label="Cuota opcional">
-                  <Select name="installmentId" defaultValue={pendingInstallments[0]?.id ?? ""}>
-                    <option value="">Sin cuota especifica</option>
-                    {pendingInstallments.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        #{item.installment_number} · {item.due_date} · {formatMoneyCOP(item.total_cents)}
-                      </option>
-                    ))}
-                  </Select>
-                </Field>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Valor">
-                    <CurrencyInput name="amount" required />
-                  </Field>
-                  <Field label="Fecha">
-                    <Input name="paymentDate" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-                  </Field>
+              {nextPayable ? (
+                <div className="grid gap-4">
+                  <div className="rounded-3xl border border-border bg-muted/30 p-4">
+                    <p className="text-sm text-muted">
+                      Proxima cuota pagable: #{nextPayable.installment_number} - {nextPayable.due_date}
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold tabular">
+                      {formatMoneyCOP(nextPayableRemainingCents)}
+                    </p>
+                  </div>
+                  <SmartPaymentDialog
+                    creditId={credit.id}
+                    installmentId={nextPayable.id}
+                    installmentLabel={`Cuota #${nextPayable.installment_number} - ${nextPayable.due_date}`}
+                    requiredCents={nextPayableRemainingCents}
+                    payoffCents={payoffQuote.payoffCents}
+                  />
                 </div>
-                <Field label="Metodo">
-                  <Input name="method" placeholder="Efectivo, transferencia..." />
-                </Field>
-                <Field label="Notas">
-                  <Textarea name="notes" />
-                </Field>
-                <Button type="submit">Registrar pago</Button>
-              </form>
+              ) : (
+                <EmptyState title="Sin cuotas por pagar" text="No hay cuotas pendientes para registrar pago." />
+              )}
             </CardContent>
           </Card>
 
@@ -182,16 +224,16 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
               <div className="grid gap-3">
                 {(payments ?? []).map((payment) => (
                   <div key={payment.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="font-medium">{payment.payment_date}</p>
                       <p className="font-semibold tabular">{formatMoneyCOP(payment.amount_cents)}</p>
                     </div>
-                    <p className="mt-1 text-sm text-muted">{payment.method || "Sin metodo"} · {payment.notes}</p>
+                    <p className="mt-1 text-sm text-muted">{payment.method || "Sin metodo"} - {payment.notes}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <EmptyState title="Sin pagos" text="Registra pagos manuales para ver historial." />
+              <EmptyState title="Sin pagos" text="Registra pagos para ver historial." />
             )}
           </CardContent>
         </Card>
@@ -205,12 +247,12 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
               <div className="grid gap-3">
                 {(extraPayments ?? []).map((payment) => (
                   <div key={payment.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                       <p className="font-medium">{payment.payment_date}</p>
                       <p className="font-semibold tabular">{formatMoneyCOP(payment.amount_cents)}</p>
                     </div>
                     <p className="mt-1 text-sm text-muted">
-                      {payment.strategy} · ahorro estimado {formatMoneyCOP(payment.interest_savings_cents)}
+                      {payment.strategy} - ahorro estimado {formatMoneyCOP(payment.interest_savings_cents)}
                     </p>
                   </div>
                 ))}

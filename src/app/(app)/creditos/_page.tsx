@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
+import { creditFriendlyPath } from "@/lib/utils/slug";
 import { archiveCreditAction, createCreditAction } from "@/server/actions/credits.actions";
 import { getAppContext } from "@/server/context";
 
@@ -111,7 +112,7 @@ export default async function CreditsPage() {
                   <div key={credit.id} className="rounded-md border border-border p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <Link href={`/creditos/${credit.id}`} className="font-semibold text-accent">
+                        <Link href={creditFriendlyPath(credit.id, credit.name)} className="font-semibold text-accent">
                           {credit.name}
                         </Link>
                         <p className="mt-1 text-sm text-muted">

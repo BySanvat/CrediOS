@@ -7,20 +7,25 @@ import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
+import { AuthAccentPicker } from "@/features/personalization/accent-color-picker";
+import type { AccentColorId } from "@/lib/accent-theme";
 import { createClient, type SupabaseBrowserConfig } from "@/lib/supabase/client";
 
 export function AuthForm({
   mode,
   supabaseConfig,
+  initialAccent,
 }: {
   mode: "login" | "signup";
   supabaseConfig: SupabaseBrowserConfig;
+  initialAccent: AccentColorId;
 }) {
   const router = useRouter();
   const params = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const configured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -69,6 +74,37 @@ export function AuthForm({
     }
   }
 
+  async function handleGoogleAuth() {
+    if (loading || googleLoading) return;
+
+    setError(null);
+    setMessage(null);
+    setGoogleLoading(true);
+
+    try {
+      if (!configured) {
+        throw new Error("Supabase no esta configurado. Completa las variables locales para autenticar.");
+      }
+
+      const supabase = createClient(supabaseConfig);
+      const next = params.get("next") ?? "/dashboard";
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo },
+      });
+
+      if (oauthError) throw oauthError;
+    } catch (caught) {
+      setGoogleLoading(false);
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "No se pudo iniciar Google. Revisa que el provider este habilitado en Supabase.",
+      );
+    }
+  }
+
   return (
     <Card className="w-full max-w-md shadow-sm">
       <CardHeader>
@@ -108,6 +144,25 @@ export function AuthForm({
             {loading ? (mode === "login" ? "Ingresando..." : "Creando cuenta...") : mode === "login" ? "Ingresar" : "Crear cuenta"}
           </Button>
         </form>
+        <div className="my-5 flex items-center gap-3 text-xs text-muted">
+          <span className="h-px flex-1 bg-border" />
+          Tambien puedes continuar con Google
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading || googleLoading}
+          aria-busy={googleLoading}
+          onClick={handleGoogleAuth}
+          className="w-full"
+        >
+          {googleLoading ? <AppIcon name="spinner" /> : <AppIcon name="google" />}
+          {googleLoading ? "Abriendo Google..." : "Continuar con Google"}
+        </Button>
+        <div className="mt-5">
+          <AuthAccentPicker initialAccent={initialAccent} />
+        </div>
         <p className="mt-5 text-sm text-muted">
           {mode === "login" ? "Aun no tienes cuenta?" : "Ya tienes cuenta?"}{" "}
           <Link className="font-medium text-accent" href={mode === "login" ? "/signup" : "/login"}>

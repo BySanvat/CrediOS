@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/field";
 import { UsageModeSetting } from "@/features/onboarding/usage-mode-setting";
+import { AccentColorSetting } from "@/features/personalization/accent-color-picker";
+import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
 import { parseUsageMode, USAGE_MODE_COOKIE } from "@/lib/usage-mode";
 import { updateSettingsAction } from "@/server/actions/settings.actions";
 import { getAppContext } from "@/server/context";
@@ -13,6 +15,7 @@ export default async function SettingsPage() {
   if (!ctx.configured) return null;
   const cookieStore = await cookies();
   const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value);
+  const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "coral";
 
   const { data: profile } = await ctx.supabase
     .from("profiles")
@@ -55,6 +58,16 @@ export default async function SettingsPage() {
                 Guardar configuracion
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Apariencia</CardTitle>
+            <CardDescription>Personaliza el color de enfasis sin cambiar los colores de estado.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <AccentColorSetting initialAccent={accentColor} />
           </CardContent>
         </Card>
 
