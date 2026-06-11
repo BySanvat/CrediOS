@@ -7,8 +7,8 @@
 - `npm run lint` pasa.
 - `npm run build` pasa.
 - Migraciones Supabase aplicadas.
-- RLS probado con dos usuarios, o bloqueo documentado antes de beta publica.
-- Pagos/abonos RPC probados con sesion autenticada, o bloqueo documentado antes de beta publica.
+- RLS probado con dos usuarios.
+- Pagos/abonos RPC probados con sesion autenticada.
 - No hay secrets en repo.
 - No se usa `service_role` en frontend.
 
@@ -23,6 +23,7 @@
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
+src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
 ```
 
 6. Configurar Auth:
@@ -95,7 +96,7 @@ npx vercel --prod
 
 No ejecutar deploy si faltan variables, build falla o RLS no fue probado.
 
-Si Vercel CLI no esta vinculado (`.vercel` no existe), ejecutar `npx vercel link` y elegir cuenta/proyecto de forma manual. No adivinar el proyecto desde automatizacion.
+Estado actual: Vercel CLI esta instalado, pero `.vercel` no existe y `npx vercel whoami` quedo esperando login/interaccion hasta timeout. Ejecutar `npx vercel login` y `npx vercel link` manualmente, eligiendo la cuenta/proyecto correctos. No adivinar el proyecto desde automatizacion.
 
 ## Rollback
 

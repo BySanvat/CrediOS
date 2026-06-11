@@ -1,7 +1,7 @@
 # RLS Test Plan - CrediOS Beta
 
-Estado: pendiente de ejecucion completa con dos usuarios.
-Motivo: Supabase real ya esta conectado y migrado, pero la prueba automatica A/B fue bloqueada por rate limit de Supabase Auth. El ultimo intento fallo con `email rate limit exceeded` antes de completar Usuario A.
+Estado: ejecutado y aprobado el 2026-06-11.
+Motivo: el usuario creo manualmente dos usuarios de prueba confirmados en Supabase Auth y se pudo validar aislamiento real con sesiones autenticadas.
 
 ## Objetivo
 
@@ -24,6 +24,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
+src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
 ```
 
 4. Habilitar email/password en Supabase Auth.
@@ -36,6 +37,24 @@ No usar datos reales.
 Nota de ejecucion: si Supabase Auth responde `email rate limit exceeded`, esperar a que termine la ventana de rate limit o crear los usuarios manualmente desde el panel de Supabase Auth para continuar la prueba.
 
 Para continuar sin esperar el rate limit, crear manualmente Usuario A y Usuario B desde Supabase Dashboard > Authentication > Users, confirmar sus emails si el proyecto exige confirmacion y luego ejecutar la prueba desde la app o con clientes autenticados usando la publishable key. No usar `service_role`.
+
+## Resultado automatizado 2026-06-11
+
+- Login Usuario A: OK.
+- Login Usuario B: OK.
+- Bootstrap de profile/workspace/membership A: OK.
+- Bootstrap de profile/workspace/membership B: OK.
+- A no ve cliente/deuda B: OK.
+- B no ve cliente/deuda A: OK.
+- A no puede insertar cliente en workspace B: bloqueado por RLS.
+- B no puede insertarse como owner/member en workspace A: bloqueado por RLS.
+- A no puede modificar deuda de workspace B: bloqueado.
+- B no puede llamar `record_credit_payment` sobre workspace A: bloqueado.
+- `record_credit_payment` propio: OK.
+- `apply_extra_payment` propio: OK.
+- `apply_extra_payment` con saldo esperado obsoleto: bloqueado.
+- Audit events de pago y abono: OK.
+- UI con Usuario A: login, detalle de deuda, registrar pago y aplicar abono: OK.
 
 ## Prueba manual desde la app
 

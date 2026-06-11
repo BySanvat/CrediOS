@@ -1,6 +1,6 @@
 # Beta Hardening Status - CrediOS
 
-Fecha: 2026-06-10
+Fecha: 2026-06-11
 
 ## Resumen
 
@@ -10,6 +10,7 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 
 - `.env.example` restaurado a placeholders.
 - Agregada migracion `0002_beta_hardening_rls_and_rpcs.sql`.
+- Agregada migracion `0003_workspace_bootstrap_owner_select.sql` para permitir bootstrap seguro del workspace owner.
 - Reemplazadas policies amplias `for all` por policies explicitas sin delete en tablas financieras.
 - Corregida policy de `workspace_members` para impedir que un usuario se inserte como owner de un workspace ajeno.
 - Agregada RPC `record_credit_payment`.
@@ -22,7 +23,7 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 
 ## Estado de Supabase real
 
-Supabase real quedo conectado via pooler y las migraciones `0001` y `0002` fueron aplicadas. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
+Supabase real quedo conectado via pooler y las migraciones `0001`, `0002` y `0003` fueron aplicadas. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
 
 Resultado de metadatos contra base real:
 
@@ -32,6 +33,10 @@ Resultado de metadatos contra base real:
 - Policies presentes: 12/12.
 - Policies abiertas inseguras tipo `true`: 0.
 - RPCs presentes: `record_credit_payment` y `apply_extra_payment`.
+- RLS A/B con dos usuarios confirmados: pasa.
+- RPC de pago con sesion real: pasa.
+- RPC de abono con sesion real: pasa.
+- Validacion UI de login, detalle de deuda, pago y abono: pasa.
 
 Validaciones locales de esa sesion:
 
@@ -83,10 +88,9 @@ El recalculo financiero sigue en TypeScript porque depende del motor puro testea
 
 ## Pendiente antes de beta real
 
-- Ejecutar `docs/RLS_TEST_PLAN.md` con dos usuarios de prueba.
-- Probar pagos/abonos desde UI contra Supabase real con sesion autenticada.
-- Reintentar cuando Supabase Auth no este en rate limit o crear Usuario A/B manualmente en el dashboard.
-- Considerar tests de RLS automatizados con usuarios de prueba.
+- Vincular proyecto Vercel.
+- Configurar variables reales en Vercel.
+- Configurar Supabase Auth Redirect URLs con la URL final.
 - Revisar `npm audit` cuando Next publique version que resuelva PostCSS sin downgrade rompedor.
 
 ## Auditoria de dependencias

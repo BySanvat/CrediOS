@@ -1,6 +1,6 @@
 # Real Supabase Validation Status
 
-Fecha: 2026-06-10
+Fecha: 2026-06-11
 
 ## Estado
 
@@ -51,6 +51,7 @@ Migraciones aplicadas:
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
+src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
 ```
 
 ## Vercel
@@ -62,6 +63,7 @@ Pendiente:
 - proyecto no vinculado (`.vercel` no existe);
 - variables reales no verificadas en Vercel;
 - deploy no ejecutado.
+- `npx vercel whoami` quedo esperando login o interaccion y termino por timeout.
 
 ## Variables necesarias en local
 
@@ -93,6 +95,7 @@ Aplicadas en orden:
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
+src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
 ```
 
 La migracion `0002` agrega:
@@ -103,21 +106,40 @@ La migracion `0002` agrega:
 - RPC `record_credit_payment`;
 - RPC `apply_extra_payment`.
 
-## Validaciones pendientes contra Supabase real
+La migracion `0003` corrige el bootstrap inicial de workspace:
 
-- Probar usuario A/B con dos cuentas de prueba.
-- Probar UI con signup/login real.
-- Crear cliente/simulacion/deuda con sesion autenticada real.
-- Registrar pago con `record_credit_payment` desde UI.
-- Aplicar abono con `apply_extra_payment` desde UI.
-- Verificar saldo/historial/auditoria.
+- permite que el owner lea su propio workspace antes de que exista membership;
+- conserva el acceso por membership para usuarios ya miembros;
+- no abre acceso cruzado entre workspaces.
 
-Intento automatico A/B:
+## Validaciones contra Supabase real
+
+Pasaron el 2026-06-11:
+
+- Login Usuario A: OK.
+- Login Usuario B: OK.
+- Bootstrap profile/workspace/membership Usuario A: OK.
+- Bootstrap profile/workspace/membership Usuario B: OK.
+- Crear cliente/simulacion/deuda A: OK.
+- Crear cliente/simulacion/deuda B: OK.
+- Usuario A no ve cliente/deuda B: OK.
+- Usuario B no ve cliente/deuda A: OK.
+- Usuario A no puede insertar cliente en workspace B: bloqueado.
+- Usuario B no puede insertarse como member/owner en workspace A: bloqueado.
+- Usuario A no puede modificar deuda de workspace B: bloqueado.
+- `record_credit_payment`: OK.
+- `record_credit_payment` cruzado desde Usuario B contra workspace A: bloqueado.
+- `apply_extra_payment`: OK.
+- `apply_extra_payment` con saldo esperado stale: bloqueado.
+- `audit_events` de pago y abono: OK.
+- Validacion UI con Usuario A: login, detalle de deuda, registrar pago y aplicar abono: OK.
+
+Historial de intentos automaticos previos:
 
 - Primer intento con dominio reservado fue rechazado por Supabase Auth como email invalido.
 - Segundo intento fue bloqueado por rate limit de email en Supabase Auth antes de completar usuario B.
 - Intento final de validacion A/B fue bloqueado por Supabase Auth con `email rate limit exceeded` antes de completar Usuario A.
-- No se fingio la prueba A/B; queda pendiente crear o esperar disponibilidad de dos usuarios de prueba.
+- Luego el usuario creo manualmente los usuarios y la validacion final paso.
 
 ## Comandos de verificacion local
 
@@ -135,6 +157,5 @@ No hacer deploy hasta:
 
 - configurar variables reales en Vercel;
 - configurar Supabase Auth URLs;
-- probar RLS usuario A/B;
-- probar pagos/abonos RPC con sesion autenticada real;
+- vincular proyecto Vercel o iniciar sesion en Vercel CLI;
 - confirmar que `npm run build` pasa.
