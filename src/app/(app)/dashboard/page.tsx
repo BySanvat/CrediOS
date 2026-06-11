@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { CalendarClock, Landmark, Users, WalletCards } from "lucide-react";
+import { CalendarClock, Landmark, PiggyBank, Users, WalletCards } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatMoneyCOP } from "@/domain/finance";
+import { getPeriodRange, summarizeTransactions } from "@/domain/personal-finance";
 import { getAppContext } from "@/server/context";
 
 export default async function DashboardPage() {
@@ -18,6 +19,7 @@ export default async function DashboardPage() {
     installments,
     payments,
     reminders,
+    personalTransactions,
   ] = await Promise.all([
     ctx.supabase.from("simulations").select("id", { count: "exact", head: true }).eq("workspace_id", ctx.workspace.id).is("archived_at", null),
     ctx.supabase.from("clients").select("id", { count: "exact", head: true }).eq("workspace_id", ctx.workspace.id).is("archived_at", null),
@@ -25,6 +27,14 @@ export default async function DashboardPage() {
     ctx.supabase.from("installments").select("id,total_cents,due_date,status").eq("workspace_id", ctx.workspace.id).in("status", ["pending", "partial"]).order("due_date", { ascending: true }).limit(8),
     ctx.supabase.from("payments").select("amount_cents,interest_cents").eq("workspace_id", ctx.workspace.id),
     ctx.supabase.from("reminders").select("id,title,due_date,status").eq("workspace_id", ctx.workspace.id).eq("status", "pending").order("due_date", { ascending: true }).limit(6),
+    ctx.supabase
+      .from("personal_transactions")
+      .select("type,amount_cents,occurred_at,archived_at")
+      .eq("workspace_id", ctx.workspace.id)
+      .is("archived_at", null)
+      .gte("occurred_at", getPeriodRange("month").start)
+      .lte("occurred_at", getPeriodRange("month").end)
+      .limit(200),
   ]);
 
   const activeCredits = credits.data ?? [];
@@ -38,6 +48,8 @@ export default async function DashboardPage() {
   }, 0);
   const interestPaid = (payments.data ?? []).reduce((sum, item) => sum + item.interest_cents, 0);
   const lateCount = pendingInstallments.filter((item) => item.due_date < today).length;
+  const personalSummary = summarizeTransactions(personalTransactions.data ?? []);
+  personalSummary.net = personalSummary.income - personalSummary.expense;
 
   return (
     <>
@@ -66,6 +78,26 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <Card className="bg-[linear-gradient(135deg,var(--card),var(--surface-warm))]">
+          <CardHeader>
+            <CardTitle>Finanzas personales</CardTitle>
+            <CardDescription>Flujo personal del mes actual.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <MoneyMetric label="Ingresos" value={personalSummary.income} />
+              <MoneyMetric label="Gastos" value={personalSummary.expense} />
+              <MoneyMetric label="Balance" value={personalSummary.net} />
+            </div>
+            <div className="mt-5">
+              <Button asChild href="/finanzas" variant="secondary">
+                <PiggyBank className="h-4 w-4" />
+                Abrir finanzas
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Proximas cuotas</CardTitle>

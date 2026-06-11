@@ -22,3 +22,10 @@ test("private dashboard does not expose app data to an anonymous visitor", async
   await expect(page.locator("body")).toContainText(/Ingresar a CrediOS|Supabase todavia no esta configurado/);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toHaveCount(0);
 });
+
+test("personal finance routes are private", async ({ page }) => {
+  await page.goto("/finanzas");
+
+  await expect(page.locator("body")).toContainText(/Ingresar a CrediOS|Supabase todavia no esta configurado/);
+  await expect(page.getByRole("heading", { name: "Finanzas personales" })).toHaveCount(0);
+});

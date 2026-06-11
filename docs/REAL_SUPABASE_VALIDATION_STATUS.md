@@ -52,6 +52,7 @@ Migraciones aplicadas:
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
+src/lib/db/migrations/0004_personal_finance_p0.sql
 ```
 
 ## Vercel
@@ -96,6 +97,7 @@ Aplicadas en orden:
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
+src/lib/db/migrations/0004_personal_finance_p0.sql
 ```
 
 La migracion `0002` agrega:
@@ -111,6 +113,15 @@ La migracion `0003` corrige el bootstrap inicial de workspace:
 - permite que el owner lea su propio workspace antes de que exista membership;
 - conserva el acceso por membership para usuarios ya miembros;
 - no abre acceso cruzado entre workspaces.
+
+La migracion `0004` agrega Finanzas personales P0:
+
+- `personal_categories`;
+- `personal_transactions`;
+- `personal_budgets`;
+- `recurring_rules`;
+- RLS por workspace;
+- indices por workspace, periodo, tipo y categoria.
 
 ## Validaciones contra Supabase real
 

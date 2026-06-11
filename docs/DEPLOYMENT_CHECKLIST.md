@@ -24,6 +24,7 @@
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
+src/lib/db/migrations/0004_personal_finance_p0.sql
 ```
 
 6. Configurar Auth:

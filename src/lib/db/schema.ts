@@ -261,3 +261,98 @@ export const auditEvents = pgTable(
     index("audit_events_entity_idx").on(table.workspaceId, table.entityType, table.entityId),
   ],
 );
+
+export const personalCategories = pgTable(
+  "personal_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    icon: text("icon").default("circle").notNull(),
+    colorToken: text("color_token").default("sand").notNull(),
+    isDefault: boolean("is_default").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("personal_categories_workspace_idx").on(table.workspaceId),
+    index("personal_categories_type_idx").on(table.workspaceId, table.type),
+  ],
+);
+
+export const personalTransactions = pgTable(
+  "personal_transactions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    categoryId: uuid("category_id"),
+    type: text("type").notNull(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    currency: text("currency").default("COP").notNull(),
+    noteRaw: text("note_raw").notNull(),
+    noteNormalized: text("note_normalized").notNull(),
+    occurredAt: date("occurred_at").notNull(),
+    source: text("source").default("manual").notNull(),
+    linkedCreditAccountId: uuid("linked_credit_account_id"),
+    duplicateHash: text("duplicate_hash"),
+    createdBy: uuid("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("personal_transactions_workspace_date_idx").on(table.workspaceId, table.occurredAt),
+    index("personal_transactions_category_idx").on(table.workspaceId, table.categoryId),
+    index("personal_transactions_type_idx").on(table.workspaceId, table.type),
+    index("personal_transactions_duplicate_idx").on(table.workspaceId, table.duplicateHash),
+  ],
+);
+
+export const personalBudgets = pgTable(
+  "personal_budgets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    categoryId: uuid("category_id").notNull(),
+    periodType: text("period_type").default("monthly").notNull(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    rollover: boolean("rollover").default(false).notNull(),
+    activeFrom: date("active_from").notNull(),
+    activeTo: date("active_to"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("personal_budgets_workspace_idx").on(table.workspaceId),
+    index("personal_budgets_category_idx").on(table.workspaceId, table.categoryId),
+    index("personal_budgets_period_idx").on(table.workspaceId, table.periodType, table.activeFrom),
+  ],
+);
+
+export const recurringRules = pgTable(
+  "recurring_rules",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    categoryId: uuid("category_id"),
+    type: text("type").notNull(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    currency: text("currency").default("COP").notNull(),
+    noteTemplate: text("note_template").notNull(),
+    frequency: text("frequency").default("monthly").notNull(),
+    intervalCount: integer("interval_count").default(1).notNull(),
+    startsAt: date("starts_at").notNull(),
+    endsAt: date("ends_at"),
+    nextRunAt: date("next_run_at").notNull(),
+    active: boolean("active").default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("recurring_rules_workspace_idx").on(table.workspaceId),
+    index("recurring_rules_next_run_idx").on(table.workspaceId, table.nextRunAt, table.active),
+    index("recurring_rules_category_idx").on(table.workspaceId, table.categoryId),
+  ],
+);

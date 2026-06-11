@@ -11,6 +11,7 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 - `.env.example` restaurado a placeholders.
 - Agregada migracion `0002_beta_hardening_rls_and_rpcs.sql`.
 - Agregada migracion `0003_workspace_bootstrap_owner_select.sql` para permitir bootstrap seguro del workspace owner.
+- Agregada migracion `0004_personal_finance_p0.sql` para finanzas personales P0.
 - Reemplazadas policies amplias `for all` por policies explicitas sin delete en tablas financieras.
 - Corregida policy de `workspace_members` para impedir que un usuario se inserte como owner de un workspace ajeno.
 - Agregada RPC `record_credit_payment`.
@@ -23,7 +24,7 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 
 ## Estado de Supabase real
 
-Supabase real quedo conectado via pooler y las migraciones `0001`, `0002` y `0003` fueron aplicadas. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
+Supabase real quedo conectado via pooler y las migraciones `0001`, `0002`, `0003` y `0004` fueron aplicadas. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
 
 Resultado de metadatos contra base real:
 

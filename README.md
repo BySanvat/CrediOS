@@ -47,6 +47,7 @@ Las migraciones SQL con tablas, indices, triggers, RLS y hardening beta estan en
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
 src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 src/lib/db/migrations/0003_workspace_bootstrap_owner_select.sql
+src/lib/db/migrations/0004_personal_finance_p0.sql
 ```
 
 Aplica esas migraciones en Supabase, en orden, antes de usar la app con datos reales.
@@ -80,6 +81,7 @@ npm run db:push
 - Recordatorios internos.
 - Configuracion basica.
 - Modo claro/oscuro.
+- Finanzas personales P0: quick add, movimientos, categorias, presupuestos, recurrentes, reportes y CSV.
 
 ## Seguridad
 
