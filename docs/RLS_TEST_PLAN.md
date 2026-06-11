@@ -1,7 +1,7 @@
 # RLS Test Plan - CrediOS Beta
 
-Estado: pendiente de ejecucion contra Supabase real.  
-Motivo: en esta sesion no existe `.env.local` ni `DATABASE_URL` PostgreSQL seguro disponible.
+Estado: pendiente de ejecucion completa con dos usuarios.
+Motivo: Supabase real ya esta conectado y migrado, pero la prueba automatica A/B fue bloqueada por rate limit de Supabase Auth antes de completar el usuario B.
 
 ## Objetivo
 
@@ -9,8 +9,8 @@ Validar que un usuario autenticado solo pueda leer y escribir datos de workspace
 
 ## Preparacion
 
-1. Crear proyecto Supabase.
-2. Configurar en `.env.local`:
+1. Confirmar proyecto Supabase.
+2. Confirmar `.env.local`:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
@@ -19,7 +19,7 @@ DATABASE_URL=postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/post
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-3. Aplicar migraciones en orden:
+3. Confirmar migraciones aplicadas en orden:
 
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
@@ -27,11 +27,13 @@ src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 ```
 
 4. Habilitar email/password en Supabase Auth.
-5. Crear dos usuarios de prueba:
+5. Crear o confirmar dos usuarios de prueba:
    - Usuario A
    - Usuario B
 
 No usar datos reales.
+
+Nota de ejecucion: si Supabase Auth responde `email rate limit exceeded`, esperar a que termine la ventana de rate limit o crear los usuarios manualmente desde el panel de Supabase Auth para continuar la prueba.
 
 ## Prueba manual desde la app
 

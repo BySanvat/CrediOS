@@ -4,14 +4,14 @@ Fecha: 2026-06-10
 
 ## Estado
 
-La conexion real a Supabase queda pendiente porque `.env.local` existe pero no contiene las variables requeridas de Supabase/PostgreSQL.
+La conexion real a Supabase ya fue validada con `DATABASE_URL` de pooler.
 
 `.env.local` esta:
 
 - presente;
 - ignorado por Git;
 - no trackeado;
-- sin valores reales para Supabase al momento de esta validacion.
+- configurado localmente con URL publica, publishable key y connection string PostgreSQL de pooler.
 
 ## Validaciones ejecutadas en esta sesion
 
@@ -31,6 +31,28 @@ Resultado:
 - e2e Playwright minimo: 3/3;
 - build Next.js: correcto.
 
+## Validacion de base real
+
+Resultado contra Supabase real:
+
+- Conexion PostgreSQL: OK via pooler.
+- Tablas encontradas: 12/12.
+- RLS activo: 12/12 tablas sensibles.
+- Policies presentes: 12/12 tablas sensibles.
+- Policies abiertas inseguras tipo `using (true)` / `with check (true)`: 0.
+- RPCs presentes:
+  - `record_credit_payment`
+  - `apply_extra_payment`
+  - `is_workspace_member`
+  - `is_workspace_admin`
+
+Migraciones aplicadas:
+
+```txt
+src/lib/db/migrations/0001_initial_schema_and_rls.sql
+src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
+```
+
 ## Vercel
 
 `npx vercel --version` funciona y reporta Vercel CLI disponible.
@@ -38,12 +60,12 @@ Resultado:
 Pendiente:
 
 - proyecto no vinculado (`.vercel` no existe);
-- variables reales no configuradas;
+- variables reales no verificadas en Vercel;
 - deploy no ejecutado.
 
-## Variables necesarias
+## Variables necesarias en local
 
-Configurar en `.env.local`:
+`.env.local` ya fue configurado localmente y no esta trackeado por Git. Debe contener:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
@@ -64,9 +86,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=anon_public_key
 
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` o `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` debe ser una key publica. No debe ser una connection string PostgreSQL.
 
-## Migraciones listas
+## Migraciones
 
-Aplicar en orden:
+Aplicadas en orden:
 
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
@@ -83,16 +105,18 @@ La migracion `0002` agrega:
 
 ## Validaciones pendientes contra Supabase real
 
-- Aplicar migraciones.
-- Verificar tablas.
-- Verificar RLS activo.
-- Verificar RPCs.
-- Probar usuario A/B.
+- Probar usuario A/B con dos cuentas de prueba.
 - Probar UI con signup/login real.
-- Crear cliente/simulacion/deuda.
-- Registrar pago con `record_credit_payment`.
-- Aplicar abono con `apply_extra_payment`.
+- Crear cliente/simulacion/deuda con sesion autenticada real.
+- Registrar pago con `record_credit_payment` desde UI.
+- Aplicar abono con `apply_extra_payment` desde UI.
 - Verificar saldo/historial/auditoria.
+
+Intento automatico A/B:
+
+- Primer intento con dominio reservado fue rechazado por Supabase Auth como email invalido.
+- Segundo intento fue bloqueado por rate limit de email en Supabase Auth antes de completar usuario B.
+- No se fingio la prueba A/B; queda pendiente crear o esperar disponibilidad de dos usuarios de prueba.
 
 ## Comandos de verificacion local
 
@@ -109,7 +133,7 @@ npm run e2e
 No hacer deploy hasta:
 
 - configurar variables reales en Vercel;
-- aplicar migraciones;
 - configurar Supabase Auth URLs;
 - probar RLS usuario A/B;
+- probar pagos/abonos RPC con sesion autenticada real;
 - confirmar que `npm run build` pasa.

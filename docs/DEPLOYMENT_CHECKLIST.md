@@ -7,17 +7,18 @@
 - `npm run lint` pasa.
 - `npm run build` pasa.
 - Migraciones Supabase aplicadas.
-- RLS probado con dos usuarios.
+- RLS probado con dos usuarios, o bloqueo documentado antes de beta publica.
+- Pagos/abonos RPC probados con sesion autenticada, o bloqueo documentado antes de beta publica.
 - No hay secrets en repo.
 - No se usa `service_role` en frontend.
 
 ## Supabase
 
-1. Crear proyecto Supabase.
+1. Confirmar proyecto Supabase.
 2. Copiar `NEXT_PUBLIC_SUPABASE_URL`.
 3. Copiar `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 4. Obtener `DATABASE_URL` PostgreSQL real.
-5. Aplicar:
+5. Confirmar/aplicar:
 
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
@@ -33,6 +34,11 @@ src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 
 7. Crear usuarios test A/B.
 8. Ejecutar `docs/RLS_TEST_PLAN.md`.
+9. Probar desde UI:
+   - crear cliente;
+   - crear simulacion/deuda;
+   - registrar pago por RPC;
+   - aplicar abono por RPC.
 
 ## Vercel
 
@@ -88,6 +94,8 @@ npx vercel --prod
 ```
 
 No ejecutar deploy si faltan variables, build falla o RLS no fue probado.
+
+Si Vercel CLI no esta vinculado (`.vercel` no existe), ejecutar `npx vercel link` y elegir cuenta/proyecto de forma manual. No adivinar el proyecto desde automatizacion.
 
 ## Rollback
 

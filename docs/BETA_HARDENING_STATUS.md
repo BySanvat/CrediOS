@@ -22,9 +22,16 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 
 ## Estado de Supabase real
 
-No probado contra Supabase real en la sesion de hardening porque no existia `.env.local` ni `DATABASE_URL` PostgreSQL real disponible.
+Supabase real quedo conectado via pooler y las migraciones `0001` y `0002` fueron aplicadas. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
 
-En la sesion de conexion real posterior, `.env.local` existe pero las variables de Supabase/PostgreSQL siguen vacias. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
+Resultado de metadatos contra base real:
+
+- Conexion PostgreSQL: OK.
+- Tablas esperadas: 12/12.
+- RLS activo: 12/12.
+- Policies presentes: 12/12.
+- Policies abiertas inseguras tipo `true`: 0.
+- RPCs presentes: `record_credit_payment` y `apply_extra_payment`.
 
 Validaciones locales de esa sesion:
 
@@ -36,7 +43,7 @@ Validaciones locales de esa sesion:
 
 Vercel CLI esta disponible, pero el proyecto no esta vinculado y no se hizo deploy.
 
-El archivo `.env.example` tenia valores cruzados:
+Durante la fase previa, el archivo `.env.example` tenia valores cruzados:
 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` tenia forma de URL PostgreSQL.
 - `DATABASE_URL` tenia forma de URL REST.
@@ -76,9 +83,8 @@ El recalculo financiero sigue en TypeScript porque depende del motor puro testea
 
 ## Pendiente antes de beta real
 
-- Aplicar migraciones en Supabase.
-- Ejecutar `docs/RLS_TEST_PLAN.md`.
-- Probar pagos/abonos desde UI contra Supabase real.
+- Ejecutar `docs/RLS_TEST_PLAN.md` con dos usuarios de prueba.
+- Probar pagos/abonos desde UI contra Supabase real con sesion autenticada.
 - Considerar tests de RLS automatizados con usuarios de prueba.
 - Revisar `npm audit` cuando Next publique version que resuelva PostCSS sin downgrade rompedor.
 
