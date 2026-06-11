@@ -3,9 +3,14 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { getSupabasePublishableKey, getSupabaseUrl } from "./env";
 
-export function createClient() {
-  const url = getSupabaseUrl();
-  const key = getSupabasePublishableKey();
+export type SupabaseBrowserConfig = {
+  url?: string;
+  publishableKey?: string;
+};
+
+export function createClient(config?: SupabaseBrowserConfig) {
+  const url = config?.url ?? getSupabaseUrl();
+  const key = config?.publishableKey ?? getSupabasePublishableKey();
 
   if (!url || !key) {
     throw new Error("Supabase no esta configurado. Completa .env.local para usar autenticacion.");

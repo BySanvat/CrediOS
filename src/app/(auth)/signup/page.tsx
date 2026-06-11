@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AuthForm } from "@/features/auth/auth-form";
+import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
+
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 export default function SignupPage() {
   return (
@@ -11,7 +15,13 @@ export default function SignupPage() {
           <h1 className="mt-1 text-2xl font-semibold">Crea tu espacio financiero</h1>
         </Link>
         <Suspense fallback={null}>
-          <AuthForm mode="signup" />
+          <AuthForm
+            mode="signup"
+            supabaseConfig={{
+              url: getSupabaseUrl(),
+              publishableKey: getSupabasePublishableKey(),
+            }}
+          />
         </Suspense>
       </div>
     </main>

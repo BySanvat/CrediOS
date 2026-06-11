@@ -6,16 +6,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
-import { createClient } from "@/lib/supabase/client";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { createClient, type SupabaseBrowserConfig } from "@/lib/supabase/client";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  supabaseConfig,
+}: {
+  mode: "login" | "signup";
+  supabaseConfig: SupabaseBrowserConfig;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const configured = isSupabaseConfigured();
+  const configured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -27,7 +32,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         throw new Error("Supabase no esta configurado. Completa las variables locales para autenticar.");
       }
 
-      const supabase = createClient();
+      const supabase = createClient(supabaseConfig);
       const email = String(formData.get("email") ?? "");
       const password = String(formData.get("password") ?? "");
 
