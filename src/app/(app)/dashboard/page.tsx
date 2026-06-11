@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CalendarClock, Landmark, PiggyBank, Users, WalletCards } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,10 +63,10 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Metric icon={WalletCards} label="Simulaciones" value={String(simulations.count ?? 0)} />
-        <Metric icon={Users} label="Clientes" value={String(clients.count ?? 0)} />
-        <Metric icon={Landmark} label="Deudas activas" value={String(activeCredits.filter((c) => c.status === "active").length)} />
-        <Metric icon={CalendarClock} label="Vencidas" value={String(lateCount)} tone={lateCount ? "text-amber-600" : ""} />
+        <Metric mark="S" label="Simulaciones" value={String(simulations.count ?? 0)} />
+        <Metric mark="C" label="Clientes" value={String(clients.count ?? 0)} />
+        <Metric mark="D" label="Deudas activas" value={String(activeCredits.filter((c) => c.status === "active").length)} />
+        <Metric mark="V" label="Vencidas" value={String(lateCount)} tone={lateCount ? "text-amber-600" : ""} />
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -91,7 +90,6 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-5">
               <Button asChild href="/finanzas" variant="secondary">
-                <PiggyBank className="h-4 w-4" />
                 Abrir finanzas
               </Button>
             </div>
@@ -148,12 +146,12 @@ export default async function DashboardPage() {
 }
 
 function Metric({
-  icon: Icon,
+  mark,
   label,
   value,
   tone,
 }: {
-  icon: React.ElementType;
+  mark: string;
   label: string;
   value: string;
   tone?: string;
@@ -165,7 +163,9 @@ function Metric({
           <p className="text-sm text-muted">{label}</p>
           <p className={`mt-1 text-2xl font-semibold tabular ${tone ?? ""}`}>{value}</p>
         </div>
-        <Icon className="h-5 w-5 text-accent" />
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-warm text-xs font-semibold text-accent">
+          {mark}
+        </span>
       </CardContent>
     </Card>
   );

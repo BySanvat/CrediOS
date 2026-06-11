@@ -1,4 +1,3 @@
-import { FolderArchive, Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,7 +94,6 @@ export default async function PersonalTransactionsPage({
               </Field>
               <input type="hidden" name="source" value="manual" />
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Registrar movimiento
               </Button>
             </form>
@@ -197,7 +195,6 @@ export default async function PersonalTransactionsPage({
                     <form action={archivePersonalTransactionAction} className="mt-3">
                       <input type="hidden" name="id" value={transaction.id} />
                       <Button type="submit" size="sm" variant="ghost">
-                        <FolderArchive className="h-4 w-4" />
                         Archivar
                       </Button>
                     </form>

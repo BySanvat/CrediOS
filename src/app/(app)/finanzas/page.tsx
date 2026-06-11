@@ -1,4 +1,3 @@
-import { BarChart3, CalendarClock, Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -181,7 +180,6 @@ export default async function PersonalFinancePage({
             {insights.map((insight) => (
               <div key={insight.title} className="rounded-[1.2rem] border border-border bg-surface-warm p-4">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-accent" />
                   <p className="font-semibold">{insight.title}</p>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-muted">{insight.detail}</p>
@@ -221,11 +219,9 @@ export default async function PersonalFinancePage({
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Button asChild href="/finanzas/movimientos" variant="secondary">
-          <Plus className="h-4 w-4" />
           Ver movimientos
         </Button>
         <Button asChild href="/finanzas/reportes" variant="secondary">
-          <CalendarClock className="h-4 w-4" />
           Reportes
         </Button>
       </div>

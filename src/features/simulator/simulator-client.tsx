@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Calculator, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -51,7 +50,6 @@ export function SimulatorClient() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-accent" />
             Datos de simulacion
           </CardTitle>
           <CardDescription>
@@ -148,7 +146,6 @@ export function SimulatorClient() {
               />
             </Field>
             <Button type="submit">
-              <Save className="h-4 w-4" />
               Guardar simulacion
             </Button>
           </form>

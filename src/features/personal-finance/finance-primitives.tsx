@@ -1,4 +1,3 @@
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatMoneyCOP } from "@/domain/finance";
 import { cn } from "@/lib/utils/cn";
@@ -12,7 +11,7 @@ export function FinanceMetric({
   value: number;
   tone?: "neutral" | "income" | "expense";
 }) {
-  const Icon = tone === "expense" ? ArrowDownRight : ArrowUpRight;
+  const mark = tone === "expense" ? "-" : tone === "income" ? "+" : "=";
   return (
     <Card className="soft-enter">
       <CardContent>
@@ -29,7 +28,7 @@ export function FinanceMetric({
               tone === "neutral" && "bg-pastel-sand",
             )}
           >
-            <Icon className="h-5 w-5" />
+            <span className="text-lg font-semibold">{mark}</span>
           </div>
         </div>
       </CardContent>

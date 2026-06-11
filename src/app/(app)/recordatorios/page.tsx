@@ -1,4 +1,3 @@
-import { Check, Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,6 @@ export default async function RemindersPage() {
                 <Textarea name="notes" />
               </Field>
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Crear recordatorio
               </Button>
             </form>
@@ -109,7 +107,6 @@ export default async function RemindersPage() {
                           <form action={completeReminderAction}>
                             <input type="hidden" name="id" value={reminder.id} />
                             <Button type="submit" variant="secondary" size="sm">
-                              <Check className="h-4 w-4" />
                               Completar
                             </Button>
                           </form>

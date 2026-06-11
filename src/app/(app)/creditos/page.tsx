@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FolderArchive, Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -92,7 +91,6 @@ export default async function CreditsPage() {
                 <Textarea name="notes" />
               </Field>
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Crear deuda
               </Button>
             </form>
@@ -123,7 +121,6 @@ export default async function CreditsPage() {
                         <form action={archiveCreditAction}>
                           <input type="hidden" name="id" value={credit.id} />
                           <Button type="submit" variant="ghost" size="sm">
-                            <FolderArchive className="h-4 w-4" />
                             Archivar
                           </Button>
                         </form>

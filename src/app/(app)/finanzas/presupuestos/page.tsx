@@ -1,4 +1,3 @@
-import { FolderArchive, Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -94,7 +93,6 @@ export default async function PersonalBudgetsPage({
                 Rollover marcado para una fase posterior
               </label>
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Guardar presupuesto
               </Button>
             </form>
@@ -128,7 +126,6 @@ export default async function PersonalBudgetsPage({
                       <form action={archivePersonalBudgetAction}>
                         <input type="hidden" name="id" value={item.budget.id} />
                         <Button type="submit" variant="ghost" size="sm">
-                          <FolderArchive className="h-4 w-4" />
                           Cerrar
                         </Button>
                       </form>

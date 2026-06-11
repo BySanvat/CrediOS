@@ -1,4 +1,3 @@
-import { Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +46,6 @@ export default async function SettingsPage() {
                 </Select>
               </Field>
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Guardar configuracion
               </Button>
             </form>

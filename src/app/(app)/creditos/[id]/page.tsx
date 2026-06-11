@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ExtraPaymentForm } from "@/features/credits/extra-payment-form";
 import { PageHeader } from "@/components/layout/page-header";
@@ -62,7 +61,6 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
         action={
           <Button asChild variant="secondary">
             <Link href="/creditos">
-              <ArrowLeft className="h-4 w-4" />
               Volver
             </Link>
           </Button>

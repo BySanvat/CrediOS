@@ -1,26 +1,25 @@
 import Link from "next/link";
-import { ArrowRight, Bell, Calculator, CreditCard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const pillars = [
   {
-    icon: Calculator,
+    mark: "S",
     title: "Simulaciones claras",
     text: "Calcula cuotas, intereses, costos y tablas de amortizacion antes de tomar decisiones.",
   },
   {
-    icon: CreditCard,
+    mark: "D",
     title: "Deudas y cartera",
     text: "Registra deudas manuales, clientes, pagos y abonos sin convertir CrediOS en prestamista.",
   },
   {
-    icon: Bell,
+    mark: "R",
     title: "Recordatorios internos",
     text: "Organiza proximas fechas de pago y vencimientos desde un panel privado.",
   },
   {
-    icon: ShieldCheck,
+    mark: "B",
     title: "Base segura",
     text: "Diseñado con workspaces, RLS, validacion y auditoria para datos financieros sensibles.",
   },
@@ -62,9 +61,7 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/signup">
-                  Empezar <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Link href="/signup">Empezar</Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
                 <Link href="/login">Ya tengo cuenta</Link>
@@ -77,7 +74,7 @@ export default function Home() {
               <Card key={pillar.title} className="bg-white/80 shadow-sm backdrop-blur dark:bg-slate-900/80">
                 <CardContent className="flex gap-4 p-5">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white dark:bg-teal-300 dark:text-teal-950">
-                    <pillar.icon className="h-5 w-5" />
+                    <span className="text-sm font-semibold">{pillar.mark}</span>
                   </div>
                   <div>
                     <h3 className="font-semibold">{pillar.title}</h3>

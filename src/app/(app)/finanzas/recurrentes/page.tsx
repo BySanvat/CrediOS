@@ -1,4 +1,3 @@
-import { Power, Save } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,7 +82,6 @@ export default async function PersonalRecurringPage() {
                 </Field>
               </div>
               <Button type="submit">
-                <Save className="h-4 w-4" />
                 Guardar recurrente
               </Button>
             </form>
@@ -116,7 +114,6 @@ export default async function PersonalRecurringPage() {
                       <input type="hidden" name="id" value={rule.id} />
                       <input type="hidden" name="active" value={String(rule.active)} />
                       <Button type="submit" variant="ghost" size="sm">
-                        <Power className="h-4 w-4" />
                         {rule.active ? "Pausar" : "Activar"}
                       </Button>
                     </form>

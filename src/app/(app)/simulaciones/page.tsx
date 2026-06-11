@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Copy, FolderArchive, Landmark } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -87,21 +86,18 @@ export default async function SimulationsPage() {
                         </Select>
                       </Field>
                       <Button type="submit" className="self-end">
-                        <Landmark className="h-4 w-4" />
                         Convertir
                       </Button>
                     </form>
                     <form action={duplicateSimulationAction} className="self-end">
                       <input type="hidden" name="id" value={simulation.id} />
                       <Button type="submit" variant="secondary">
-                        <Copy className="h-4 w-4" />
                         Duplicar
                       </Button>
                     </form>
                     <form action={archiveSimulationAction} className="self-end">
                       <input type="hidden" name="id" value={simulation.id} />
                       <Button type="submit" variant="ghost">
-                        <FolderArchive className="h-4 w-4" />
                         Archivar
                       </Button>
                     </form>

@@ -1,6 +1,5 @@
 "use client";
 
-import { SendHorizonal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +38,6 @@ export function QuickAddComposer({ categories }: { categories: CategoryOption[] 
                 required
               />
               <Button type="submit" size="lg" className="sm:w-40">
-                <SendHorizonal className="h-4 w-4" />
                 Registrar
               </Button>
             </div>

@@ -1,11 +1,12 @@
-import { AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "./card";
 
 export function ConfigNotice() {
   return (
     <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40">
       <CardContent className="flex gap-3 p-4 text-amber-900 dark:text-amber-100">
-        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-bold text-amber-950">
+          !
+        </span>
         <div>
           <p className="font-semibold">Supabase todavia no esta configurado.</p>
           <p className="mt-1 text-sm leading-6">

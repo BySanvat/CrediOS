@@ -1,26 +1,16 @@
 import Link from "next/link";
-import {
-  Bell,
-  Calculator,
-  Gauge,
-  Landmark,
-  PiggyBank,
-  Settings,
-  Users,
-  WalletCards,
-} from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { LogoutButton } from "./logout-button";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: Gauge },
-  { href: "/finanzas", label: "Finanzas", icon: PiggyBank },
-  { href: "/simulador", label: "Simulador", icon: Calculator },
-  { href: "/simulaciones", label: "Simulaciones", icon: WalletCards },
-  { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/creditos", label: "Creditos/deudas", icon: Landmark },
-  { href: "/recordatorios", label: "Recordatorios", icon: Bell },
-  { href: "/configuracion", label: "Configuracion", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", mark: "D" },
+  { href: "/finanzas", label: "Finanzas", mark: "F" },
+  { href: "/simulador", label: "Simulador", mark: "S" },
+  { href: "/simulaciones", label: "Simulaciones", mark: "M" },
+  { href: "/clientes", label: "Clientes", mark: "C" },
+  { href: "/creditos", label: "Creditos/deudas", mark: "Cr" },
+  { href: "/recordatorios", label: "Recordatorios", mark: "R" },
+  { href: "/configuracion", label: "Configuracion", mark: "Aj" },
 ];
 
 const mobileNavItems = navItems.filter((item) =>
@@ -48,7 +38,9 @@ export function AppShell({
               href={item.href}
               className="flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted transition duration-150 hover:bg-surface-warm hover:text-foreground"
             >
-              <item.icon className="h-4 w-4" />
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-warm text-[10px] font-semibold text-accent">
+                {item.mark}
+              </span>
               {item.label}
             </Link>
           ))}
@@ -74,7 +66,9 @@ export function AppShell({
                 href={item.href}
                 className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-sm"
               >
-                <item.icon className="h-4 w-4" />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-warm text-[10px] font-semibold text-accent">
+                  {item.mark}
+                </span>
                 {item.label}
               </Link>
             ))}
@@ -88,7 +82,9 @@ export function AppShell({
               href={item.href}
               className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[1.25rem] text-[11px] font-medium text-muted transition hover:bg-surface-warm hover:text-foreground"
             >
-              <item.icon className="h-4 w-4" />
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-warm text-[10px] font-semibold text-accent">
+                {item.mark}
+              </span>
               <span className="max-w-full truncate">{item.label}</span>
             </Link>
           ))}

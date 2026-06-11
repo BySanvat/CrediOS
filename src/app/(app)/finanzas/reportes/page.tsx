@@ -1,4 +1,3 @@
-import { Download } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,7 +83,6 @@ export default async function PersonalReportsPage({
 
       <div className="flex justify-end">
         <Button asChild href={`/finanzas/reportes/export?period=${period}`} variant="secondary">
-          <Download className="h-4 w-4" />
           Exportar CSV
         </Button>
       </div>
