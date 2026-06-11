@@ -41,13 +41,14 @@ El schema Drizzle esta en:
 src/lib/db/schema.ts
 ```
 
-La migracion SQL inicial con tablas, indices, triggers y RLS esta en:
+Las migraciones SQL con tablas, indices, triggers, RLS y hardening beta estan en:
 
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
+src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 ```
 
-Aplica esa migracion en Supabase antes de usar la app con datos reales.
+Aplica esas migraciones en Supabase, en orden, antes de usar la app con datos reales.
 
 ## Scripts
 
@@ -57,6 +58,7 @@ npm run build
 npm run lint
 npm run typecheck
 npm run test:run
+npm run e2e
 npm run db:generate
 npm run db:migrate
 npm run db:push
@@ -84,6 +86,7 @@ npm run db:push
 - No exponer `DATABASE_URL`.
 - No commitear `.env.local`.
 - Usar RLS para tablas sensibles.
+- Usar RPC transaccionales para pagos y abonos.
 - Validar en server actions con Zod.
 - No guardar datos reales en desarrollo.
 
@@ -94,6 +97,7 @@ npm run test:run
 npm run typecheck
 npm run lint
 npm run build
+npm run e2e
 ```
 
 Todas pasan en la version actual.

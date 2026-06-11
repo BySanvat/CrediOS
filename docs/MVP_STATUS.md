@@ -14,6 +14,7 @@ Estado: MVP funcional avanzado, preparado para configurar Supabase y desplegar e
 - Vitest.
 - Drizzle schema.
 - Migracion SQL inicial con RLS.
+- Migracion de hardening beta con RPC transaccionales.
 - `.env.example`.
 
 ### Auth y workspace
@@ -61,6 +62,7 @@ Estado: MVP funcional avanzado, preparado para configurar Supabase y desplegar e
 - Configuracion de perfil/workspace.
 - Modo claro/oscuro.
 - Responsive desktop/mobile.
+- Playwright e2e minimo.
 
 ## Validaciones
 
@@ -69,6 +71,7 @@ npm run test:run
 npm run typecheck
 npm run lint
 npm run build
+npm run e2e
 ```
 
 Resultado: pasan.
@@ -84,7 +87,7 @@ Resultado: pasan.
 - Tarjetas de credito completas.
 - Portal de cliente/deudor.
 - Reportes PDF/Excel.
-- Playwright e2e.
+- Playwright e2e completo con usuario real de prueba.
 
 ## Decision importante
 

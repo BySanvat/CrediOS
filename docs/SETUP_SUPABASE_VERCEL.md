@@ -19,6 +19,58 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 Preferir `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` si el proyecto de Supabase ya la ofrece.
 
+Importante:
+
+- `.env.example` debe quedarse con placeholders.
+- Los valores reales van en `.env.local` y en Vercel.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` no es una URL PostgreSQL.
+- `DATABASE_URL` no es la URL REST de Supabase; debe ser la connection string PostgreSQL.
+
+Ejemplo de forma, sin valores reales:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+DATABASE_URL=postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+## 1.1 Donde encontrar cada valor
+
+En Supabase:
+
+1. `NEXT_PUBLIC_SUPABASE_URL`
+   - Project Settings
+   - API
+   - Project URL
+   - Tiene forma `https://PROJECT_REF.supabase.co`
+
+2. `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - Project Settings
+   - API
+   - Publishable key
+   - Tiene forma `sb_publishable_...`
+
+3. `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - Solo usar si el proyecto no muestra publishable key.
+   - Project Settings
+   - API
+   - anon public key
+   - No debe ser una URL PostgreSQL.
+
+4. `DATABASE_URL`
+   - Project Settings
+   - Database
+   - Connection string
+   - Seleccionar URI / Transaction pooler si Supabase lo recomienda para tu entorno
+   - Reemplazar `[YOUR-PASSWORD]` por la contraseña real de la base
+   - Tiene forma `postgresql://postgres:PASSWORD@...:5432/postgres`
+   - Este valor es secreto y solo debe ir en `.env.local` o Vercel.
+
+5. `NEXT_PUBLIC_APP_URL`
+   - Local: `http://localhost:3000`
+   - Vercel: URL final del deploy.
+
 ## 2. Reglas de secretos
 
 - No commitear `.env.local`.
@@ -43,10 +95,11 @@ En Vercel, actualizar a la URL real del despliegue.
 
 ## 4. Aplicar migracion inicial
 
-Archivo:
+Archivos, en orden:
 
 ```txt
 src/lib/db/migrations/0001_initial_schema_and_rls.sql
+src/lib/db/migrations/0002_beta_hardening_rls_and_rpcs.sql
 ```
 
 Opciones:
@@ -55,7 +108,7 @@ Opciones:
 2. Ejecutar con `psql` usando `DATABASE_URL`.
 3. Adaptar a flujo Drizzle Kit custom si el equipo decide automatizar migraciones.
 
-La migracion crea:
+Las migraciones crean:
 
 - `profiles`
 - `workspaces`
@@ -73,6 +126,7 @@ La migracion crea:
 - triggers `updated_at`
 - funcion `is_workspace_member`
 - RLS y policies
+- RPC transaccionales `record_credit_payment` y `apply_extra_payment`
 
 ## 5. Bootstrap workspace
 
@@ -114,3 +168,6 @@ npm run build
 - Probar pagos y abonos.
 - Revisar logs sin PII.
 - Confirmar que no hay `service_role` en frontend.
+- Probar `record_credit_payment` desde la UI.
+- Probar `apply_extra_payment` desde la UI.
+- Revisar `docs/RLS_TEST_PLAN.md`.

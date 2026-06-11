@@ -9,8 +9,9 @@
 
 ## Transacciones
 
-- Las acciones complejas de pagos/abonos usan llamadas secuenciales con Supabase client.
-- Antes de beta financiera, conviene mover operaciones criticas a funciones SQL transaccionales o RPC controladas.
+- Las acciones complejas de pagos/abonos ahora llaman RPC SQL transaccionales en la migracion `0002_beta_hardening_rls_and_rpcs.sql`.
+- Pendiente probar esas RPC contra Supabase real despues de aplicar migraciones.
+- El recalculo financiero de abonos sigue en TypeScript y la persistencia se hace en RPC con validacion de saldo esperado.
 
 ## Abonos
 
