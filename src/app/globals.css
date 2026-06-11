@@ -8,10 +8,10 @@
   --muted: #6f6965;
   --card: #ffffff;
   --border: #ece7e2;
-  --accent: #6faf7a;
-  --accent-soft: #eaf7ec;
-  --accent-foreground: #102314;
-  --accent-ring: rgb(111 175 122 / 28%);
+  --accent: #79b985;
+  --accent-soft: #edf8ef;
+  --accent-foreground: #245c38;
+  --accent-ring: rgb(121 185 133 / 24%);
   --surface-warm: #fffaf4;
   --surface-elevated: #ffffff;
   --surface-modal: #ffffff;
@@ -50,59 +50,59 @@
 
 :root[data-accent="apple"],
 :root[data-accent="apple-green"] {
-  --accent: #6faf7a;
-  --accent-soft: #eaf7ec;
-  --accent-ring: rgb(111 175 122 / 28%);
+  --accent: #79b985;
+  --accent-soft: #edf8ef;
+  --accent-ring: rgb(121 185 133 / 24%);
 }
 
 :root[data-accent="coral"] {
-  --accent: #efb08f;
-  --accent-soft: #fff1ea;
-  --accent-ring: rgb(239 176 143 / 24%);
+  --accent: #f0bfa6;
+  --accent-soft: #fff4ef;
+  --accent-ring: rgb(240 191 166 / 22%);
 }
 
 :root[data-accent="teal"],
 :root[data-accent="mint"] {
-  --accent: #7bcbbb;
-  --accent-soft: #e9faf6;
-  --accent-ring: rgb(123 203 187 / 26%);
+  --accent: #91d6c8;
+  --accent-soft: #effbf8;
+  --accent-ring: rgb(145 214 200 / 24%);
 }
 
 :root[data-accent="lavender"] {
-  --accent: #a79be8;
-  --accent-soft: #f1eeff;
-  --accent-ring: rgb(167 155 232 / 26%);
+  --accent: #b8afe9;
+  --accent-soft: #f4f1ff;
+  --accent-ring: rgb(184 175 233 / 24%);
 }
 
 :root[data-accent="sky"] {
-  --accent: #83bceb;
-  --accent-soft: #eaf5ff;
-  --accent-ring: rgb(131 188 235 / 26%);
+  --accent: #9ccbf0;
+  --accent-soft: #eff8ff;
+  --accent-ring: rgb(156 203 240 / 24%);
 }
 
 :root[data-accent="rose"] {
-  --accent: #e9a5b7;
-  --accent-soft: #fff0f4;
-  --accent-ring: rgb(233 165 183 / 26%);
+  --accent: #ecb8c6;
+  --accent-soft: #fff3f6;
+  --accent-ring: rgb(236 184 198 / 24%);
 }
 
 :root[data-accent="peach"] {
-  --accent: #efb08f;
-  --accent-soft: #fff1ea;
-  --accent-ring: rgb(239 176 143 / 24%);
+  --accent: #f0bfa6;
+  --accent-soft: #fff4ef;
+  --accent-ring: rgb(240 191 166 / 22%);
 }
 
 :root[data-accent="amber"],
 :root[data-accent="honey"] {
-  --accent: #ebcb78;
-  --accent-soft: #fff7dd;
-  --accent-ring: rgb(235 203 120 / 28%);
+  --accent: #ebd48e;
+  --accent-soft: #fff9e7;
+  --accent-ring: rgb(235 212 142 / 24%);
 }
 
 :root[data-accent="sage"] {
-  --accent: #6faf7a;
-  --accent-soft: #eaf7ec;
-  --accent-ring: rgb(111 175 122 / 28%);
+  --accent: #79b985;
+  --accent-soft: #edf8ef;
+  --accent-ring: rgb(121 185 133 / 24%);
 }
 
 :root.dark[data-accent="apple"],

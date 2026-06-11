@@ -28,6 +28,8 @@ export function AuthForm({
   const [googleLoading, setGoogleLoading] = useState(false);
   const configured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
   const googleEnabled = Boolean(supabaseConfig.googleEnabled);
+  const googleProviderReady = Boolean(supabaseConfig.googleProviderReady);
+  const googleReady = googleEnabled && googleProviderReady;
 
   function friendlyAuthError(caught: unknown) {
     const message = caught instanceof Error ? caught.message : "";
@@ -97,7 +99,7 @@ export function AuthForm({
     setGoogleLoading(true);
 
     try {
-      if (!googleEnabled) {
+      if (!googleReady) {
         throw new Error("Google aun no esta configurado para este proyecto. Puedes ingresar con correo y contrasena mientras se activa esta opcion.");
       }
 
@@ -108,12 +110,16 @@ export function AuthForm({
       const supabase = createClient(supabaseConfig);
       const next = params.get("next") ?? "/dashboard";
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo },
+        options: { redirectTo, skipBrowserRedirect: true },
       });
 
       if (oauthError) throw oauthError;
+      if (!data.url) {
+        throw new Error("No se pudo iniciar Google Auth. Usa correo y contrasena mientras revisamos la configuracion.");
+      }
+      window.location.assign(data.url);
     } catch (caught) {
       setGoogleLoading(false);
       setError(friendlyAuthError(caught));
@@ -167,7 +173,7 @@ export function AuthForm({
         <Button
           type="button"
           variant="secondary"
-          disabled={loading || googleLoading || !googleEnabled}
+          disabled={loading || googleLoading || !googleReady}
           aria-busy={googleLoading}
           onClick={handleGoogleAuth}
           className="w-full"
@@ -175,9 +181,9 @@ export function AuthForm({
           {googleLoading ? <AppIcon name="spinner" /> : <AppIcon name="google" />}
           {googleLoading ? "Abriendo Google..." : "Continuar con Google"}
         </Button>
-        {!googleEnabled ? (
+        {!googleReady ? (
           <p className="mt-2 rounded-2xl border border-border bg-surface-warm px-3 py-2 text-xs leading-5 text-muted">
-            Google esta pendiente de activar en Supabase. Mientras tanto, usa correo y contrasena.
+            Google estara disponible cuando el provider quede activo en Supabase. Mientras tanto, usa correo y contrasena.
           </p>
         ) : null}
         <div className="mt-5">

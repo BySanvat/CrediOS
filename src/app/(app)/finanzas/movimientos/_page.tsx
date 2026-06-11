@@ -51,7 +51,7 @@ export default async function PersonalTransactionsPage({
     <>
       <PageHeader
         title="Movimientos"
-        description="Captura ingresos y gastos con fecha completa, categoria y trazabilidad por workspace."
+        description="Captura ingresos y egresos con fecha completa, categoria y trazabilidad por workspace."
         icon="swap"
         action={<PeriodTabs basePath="/finanzas/movimientos" active={period} />}
       />
@@ -67,9 +67,9 @@ export default async function PersonalTransactionsPage({
           <CardContent>
             <form action={createPersonalTransactionAction} className="grid gap-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Tipo">
+                <Field label="Direccion">
                   <Select name="type" defaultValue="expense">
-                    <option value="expense">Gasto</option>
+                    <option value="expense">Egreso</option>
                     <option value="income">Ingreso</option>
                   </Select>
                 </Field>
@@ -114,9 +114,9 @@ export default async function PersonalTransactionsPage({
                 <Input name="name" placeholder="Mascotas, educacion..." required />
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Tipo">
+                <Field label="Direccion">
                   <Select name="type" defaultValue="expense">
-                    <option value="expense">Gasto</option>
+                    <option value="expense">Egreso</option>
                     <option value="income">Ingreso</option>
                   </Select>
                 </Field>
@@ -155,7 +155,7 @@ export default async function PersonalTransactionsPage({
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge tone={transaction.type === "income" ? "green" : "neutral"}>
-                            {transaction.type === "income" ? "Ingreso" : "Gasto"}
+                            {transaction.type === "income" ? "Ingreso" : "Egreso"}
                           </Badge>
                           <p className="font-semibold tabular">{formatMoneyCOP(transaction.amount_cents)}</p>
                         </div>
@@ -164,9 +164,9 @@ export default async function PersonalTransactionsPage({
                     <form action={updatePersonalTransactionAction} className="mt-4 grid gap-4 border-t border-border pt-4">
                       <input type="hidden" name="id" value={transaction.id} />
                       <div className="grid gap-4 sm:grid-cols-4">
-                        <Field label="Tipo">
+                        <Field label="Direccion">
                           <Select name="type" defaultValue={transaction.type}>
-                            <option value="expense">Gasto</option>
+                            <option value="expense">Egreso</option>
                             <option value="income">Ingreso</option>
                           </Select>
                         </Field>
@@ -201,7 +201,7 @@ export default async function PersonalTransactionsPage({
                 ))}
               </div>
             ) : (
-              <EmptyState title="Sin movimientos" text="Registra tu primer ingreso o gasto para iniciar el seguimiento." />
+              <EmptyState title="Sin movimientos" text="Registra tu primer ingreso o egreso para iniciar el seguimiento." />
             )}
           </CardContent>
         </Card>

@@ -187,28 +187,28 @@ export function SimulatorClient() {
             <CardDescription>Primeras cuotas del escenario calculado.</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-sm">
+            <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-left text-sm">
               <thead className="text-xs uppercase text-muted">
                 <tr>
-                  <th className="py-2">#</th>
-                  <th>Fecha</th>
-                  <th>Capital</th>
-                  <th>Interes</th>
-                  <th>Cargos</th>
-                  <th>Total</th>
-                  <th>Saldo</th>
+                  <th className="px-3 py-2">#</th>
+                  <th className="px-3 py-2">Fecha</th>
+                  <th className="px-3 py-2">Capital</th>
+                  <th className="px-3 py-2">Interes</th>
+                  <th className="px-3 py-2">Cargos</th>
+                  <th className="px-3 py-2">Total</th>
+                  <th className="px-3 py-2">Saldo</th>
                 </tr>
               </thead>
               <tbody>
                 {(summary?.schedule.slice(0, 12) ?? []).map((row) => (
-                  <tr key={row.installmentNumber} className="border-t border-border">
-                    <td className="py-2 tabular">{row.installmentNumber}</td>
-                    <td>{row.dueDate}</td>
-                    <td className="tabular">{formatMoneyCOP(row.principalCents)}</td>
-                    <td className="tabular">{formatMoneyCOP(row.interestCents)}</td>
-                    <td className="tabular">{formatMoneyCOP(row.feesCents)}</td>
-                    <td className="tabular font-medium">{formatMoneyCOP(row.totalCents)}</td>
-                    <td className="tabular">{formatMoneyCOP(row.remainingBalanceCents)}</td>
+                  <tr key={row.installmentNumber} className="odd:bg-card even:bg-accent-soft/45 dark:odd:bg-surface-elevated dark:even:bg-accent-soft/20">
+                    <td className="rounded-l-2xl px-3 py-3 tabular">{row.installmentNumber}</td>
+                    <td className="px-3 py-3">{row.dueDate}</td>
+                    <td className="px-3 py-3 tabular">{formatMoneyCOP(row.principalCents)}</td>
+                    <td className="px-3 py-3 tabular">{formatMoneyCOP(row.interestCents)}</td>
+                    <td className="px-3 py-3 tabular">{formatMoneyCOP(row.feesCents)}</td>
+                    <td className="px-3 py-3 tabular font-medium">{formatMoneyCOP(row.totalCents)}</td>
+                    <td className="rounded-r-2xl px-3 py-3 tabular">{formatMoneyCOP(row.remainingBalanceCents)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -6,14 +6,15 @@ El menu movil podia verse demasiado transparente y algunas opciones quedaban esc
 
 ## Solucion
 
-- Drawer izquierdo con fondo solido `bg-card` y `surface-elevated` en dark mode.
-- Backdrop suave con blur controlado.
+- Drawer izquierdo con base negra translucida y blur controlado.
+- Backdrop `black/50` con `backdrop-blur`.
 - Altura `100dvh`.
 - Contenido interno con `overflow-y-auto`.
 - Padding inferior para evitar que el ultimo item quede tapado.
 - Estado activo por ruta actual.
 - Simulador queda visible en modo personal.
 - Herramientas de cartera se ocultan solo para creditos, clientes y simulaciones si el usuario no las activo.
+- Se agrego barra inferior movil para accesos rapidos; el drawer conserva todas las rutas.
 
 ## QA esperado
 

@@ -3,7 +3,12 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { AuthForm } from "@/features/auth/auth-form";
 import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
-import { getSupabasePublishableKey, getSupabaseUrl, isGoogleAuthEnabled } from "@/lib/supabase/env";
+import {
+  getSupabasePublishableKey,
+  getSupabaseUrl,
+  isGoogleAuthEnabled,
+  isGoogleAuthProviderReady,
+} from "@/lib/supabase/env";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
@@ -27,6 +32,7 @@ export default async function SignupPage() {
               url: getSupabaseUrl(),
               publishableKey: getSupabasePublishableKey(),
               googleEnabled: isGoogleAuthEnabled(),
+              googleProviderReady: isGoogleAuthProviderReady(),
             }}
           />
         </Suspense>

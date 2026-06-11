@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
-import { LogoutButton } from "./logout-button";
 import { AppIcon } from "@/components/ui/app-icon";
+import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { MobileSideMenu, type NavigationItem } from "@/components/layout/mobile-side-menu";
+import { Button } from "@/components/ui/button";
 import { type UsageMode, usageModeCopy } from "@/lib/usage-mode";
 
-const navItems: NavigationItem[] = [
+export const appNavItems: NavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", group: "Inicio" },
   { href: "/simulador", label: "Simulador", icon: "calculator", group: "Inicio" },
   { href: "/finanzas", label: "Mis finanzas", icon: "wallet", group: "Mis finanzas" },
@@ -32,7 +33,7 @@ export function AppShell({
   showCreditTools: boolean;
 }) {
   const modeCopy = usageMode ? usageModeCopy[usageMode] : null;
-  const visibleNavItems = navItems.filter((item) => showCreditTools || item.group !== "Creditos y cartera");
+  const visibleNavItems = appNavItems.filter((item) => showCreditTools || item.group !== "Creditos y cartera");
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
@@ -70,12 +71,22 @@ export function AppShell({
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <LogoutButton />
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                className="h-10 w-10 rounded-full px-0"
+              >
+                <Link href="/configuracion" title="Ajustes" aria-label="Ajustes">
+                  <AppIcon name="settings" className="h-5 w-5" />
+                </Link>
+              </Button>
             </div>
           </div>
         </header>
-        <main className="min-w-0 px-4 py-5 sm:px-5 lg:px-8 lg:py-8">{children}</main>
+        <main className="min-w-0 px-4 py-5 pb-28 sm:px-5 lg:px-8 lg:py-8">{children}</main>
       </div>
+      <BottomNavigation items={visibleNavItems} usageMode={usageMode} showCreditTools={showCreditTools} />
     </div>
   );
 }

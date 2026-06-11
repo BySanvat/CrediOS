@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExtraPaymentForm } from "@/features/credits/extra-payment-form";
+import { IncreaseCreditDialog } from "@/features/credits/increase-credit-dialog";
 import { SmartPaymentDialog } from "@/features/credits/smart-payment-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
-import { CurrencyInput } from "@/components/ui/financial-input";
-import { Field, Input, Textarea } from "@/components/ui/field";
 import {
   calculatePayoffQuote,
   formatMoneyCOP,
@@ -18,7 +16,6 @@ import {
   type RateType,
 } from "@/domain/finance";
 import { resolveCreditIdFromSlug } from "@/lib/utils/slug";
-import { increaseCreditBalanceAction } from "@/server/actions/credits.actions";
 import { getAppContext } from "@/server/context";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -129,44 +126,78 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
         </CardContent>
       </Card>
 
+      <Card className="mt-4">
+        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Acciones rapidas</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Usa + para aumentar el saldo registrado y - para pagar o disminuir la cuota pendiente mas cercana.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <IncreaseCreditDialog
+              creditId={credit.id}
+              currentBalanceCents={credit.current_balance_cents}
+              defaultTermMonths={Math.max(1, pendingInstallments.length || credit.term_months)}
+            />
+            {nextPayable ? (
+              <SmartPaymentDialog
+                creditId={credit.id}
+                installmentId={nextPayable.id}
+                installmentLabel={`Cuota #${nextPayable.installment_number} - ${nextPayable.due_date}`}
+                requiredCents={nextPayableRemainingCents}
+                payoffCents={payoffQuote.payoffCents}
+                trigger="round"
+              />
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Plan de pagos</CardTitle>
-            <CardDescription>Cuotas vigentes y canceladas por recalculos de abonos.</CardDescription>
-          </CardHeader>
-          <CardContent className="overflow-x-auto">
+        <Card className="overflow-hidden">
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 transition hover:bg-surface-warm">
+              <div>
+                <p className="text-lg font-semibold">Plan de pagos</p>
+                <p className="mt-1 text-sm leading-6 text-muted">Cuotas vigentes y canceladas por recalculos de abonos.</p>
+              </div>
+              <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted">
+                Ver plan
+              </span>
+            </summary>
+          <CardContent className="overflow-x-auto border-t border-border">
             {(installments ?? []).length ? (
-              <table className="w-full min-w-[820px] text-left text-sm">
+              <table className="w-full min-w-[820px] border-separate border-spacing-y-1 text-left text-sm">
                 <thead className="text-xs uppercase text-muted">
                   <tr>
-                    <th className="py-2">#</th>
-                    <th>Fecha</th>
-                    <th>Capital</th>
-                    <th>Interes</th>
-                    <th>Cargos</th>
-                    <th>Total</th>
-                    <th>Saldo</th>
-                    <th>Estado</th>
-                    <th>Accion</th>
+                    <th className="px-3 py-2">#</th>
+                    <th className="px-3 py-2">Fecha</th>
+                    <th className="px-3 py-2">Capital</th>
+                    <th className="px-3 py-2">Interes</th>
+                    <th className="px-3 py-2">Cargos</th>
+                    <th className="px-3 py-2">Total</th>
+                    <th className="px-3 py-2">Saldo</th>
+                    <th className="px-3 py-2">Estado</th>
+                    <th className="px-3 py-2">Accion</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(installments ?? []).map((row) => (
-                    <tr key={row.id} className="border-t border-border">
-                      <td className="py-2 tabular">{row.installment_number}</td>
-                      <td>{row.due_date}</td>
-                      <td className="tabular">{formatMoneyCOP(row.principal_cents)}</td>
-                      <td className="tabular">{formatMoneyCOP(row.interest_cents)}</td>
-                      <td className="tabular">{formatMoneyCOP(row.fees_cents)}</td>
-                      <td className="tabular font-medium">{formatMoneyCOP(row.total_cents)}</td>
-                      <td className="tabular">{formatMoneyCOP(row.remaining_balance_cents)}</td>
-                      <td>
+                    <tr key={row.id} className="odd:bg-card even:bg-accent-soft/45 dark:odd:bg-surface-elevated dark:even:bg-accent-soft/20">
+                      <td className="rounded-l-2xl px-3 py-3 tabular">{row.installment_number}</td>
+                      <td className="px-3 py-3">{row.due_date}</td>
+                      <td className="px-3 py-3 tabular">{formatMoneyCOP(row.principal_cents)}</td>
+                      <td className="px-3 py-3 tabular">{formatMoneyCOP(row.interest_cents)}</td>
+                      <td className="px-3 py-3 tabular">{formatMoneyCOP(row.fees_cents)}</td>
+                      <td className="px-3 py-3 tabular font-medium">{formatMoneyCOP(row.total_cents)}</td>
+                      <td className="px-3 py-3 tabular">{formatMoneyCOP(row.remaining_balance_cents)}</td>
+                      <td className="px-3 py-3">
                         <Badge tone={row.status === "paid" ? "green" : row.status === "cancelled" ? "neutral" : "amber"}>
                           {row.status}
                         </Badge>
                       </td>
-                      <td>
+                      <td className="rounded-r-2xl px-3 py-3">
                         {nextPayable?.id === row.id ? (
                           <SmartPaymentDialog
                             creditId={credit.id}
@@ -187,6 +218,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
               <EmptyState title="Sin cuotas" text="Esta deuda todavia no tiene plan de pagos generado." />
             )}
           </CardContent>
+          </details>
         </Card>
 
         <div className="grid gap-6">
@@ -231,33 +263,6 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
             monthlyFeeCents={credit.monthly_fee_cents}
             monthlyInsuranceCents={credit.monthly_insurance_cents}
           />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Aumentar saldo registrado</CardTitle>
-              <CardDescription>
-                Retanqueo administrativo: registra un aumento manual del saldo y recalcula el plan. CrediOS solo organiza el registro que indiques.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form action={increaseCreditBalanceAction} className="grid gap-4">
-                <input type="hidden" name="creditId" value={credit.id} />
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Field label="Valor">
-                    <CurrencyInput name="amount" required />
-                  </Field>
-                  <Field label="Nuevo plazo meses">
-                    <Input name="termMonths" type="number" min={1} max={600} defaultValue={Math.max(1, pendingInstallments.length || credit.term_months)} required />
-                  </Field>
-                  <DatePickerField name="movementDate" label="Fecha" defaultValue={new Date().toISOString().slice(0, 10)} required />
-                </div>
-                <Field label="Notas">
-                  <Textarea name="notes" placeholder="Contexto del aumento registrado por el usuario" />
-                </Field>
-                <Button type="submit" variant="secondary">Registrar aumento</Button>
-              </form>
-            </CardContent>
-          </Card>
         </div>
       </div>
 

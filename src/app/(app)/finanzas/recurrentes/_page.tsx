@@ -31,7 +31,7 @@ export default async function PersonalRecurringPage() {
     <>
       <PageHeader
         title="Fijos mensuales"
-        description="Ingresos y gastos frecuentes que CrediOS solo registra cuando los confirmas."
+        description="Ingresos y egresos frecuentes que CrediOS solo registra cuando los confirmas."
         icon="bell"
       />
 
@@ -44,9 +44,9 @@ export default async function PersonalRecurringPage() {
           <CardContent>
             <form action={createRecurringRuleAction} className="grid gap-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Tipo">
+                <Field label="Direccion">
                   <Select name="type" defaultValue="expense">
-                    <option value="expense">Gasto</option>
+                    <option value="expense">Egreso</option>
                     <option value="income">Ingreso</option>
                   </Select>
                 </Field>

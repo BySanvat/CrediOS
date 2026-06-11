@@ -5,7 +5,7 @@ export function LogoutButton() {
   return (
     <form action={signOutAction}>
       <Button type="submit" variant="ghost" size="sm">
-        Salir
+        Cerrar sesion
       </Button>
     </form>
   );

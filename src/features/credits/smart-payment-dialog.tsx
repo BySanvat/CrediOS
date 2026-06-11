@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
 import { DatePickerField } from "@/components/ui/date-picker-field";
@@ -15,16 +15,22 @@ export function SmartPaymentDialog({
   installmentLabel,
   requiredCents,
   payoffCents,
+  trigger = "default",
 }: {
   creditId: string;
   installmentId: string;
   installmentLabel: string;
   requiredCents: number;
   payoffCents: number;
+  trigger?: "default" | "round";
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(String(Math.round(requiredCents / 100)));
   const [strategy, setStrategy] = useState<"applied_reduce_term" | "applied_reduce_payment">("applied_reduce_term");
+  const [state, formAction, pending] = useActionState(recordSmartPaymentAction, {
+    ok: false,
+    error: undefined as string | undefined,
+  });
   const amountCents = useMemo(() => {
     try {
       return moneyToCents(amount);
@@ -40,10 +46,22 @@ export function SmartPaymentDialog({
 
   return (
     <>
-      <Button type="button" size="sm" onClick={() => setOpen(true)}>
-        <AppIcon name="payment" />
-        Pagar
-      </Button>
+      {trigger === "round" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex h-14 w-14 items-center justify-center rounded-full border border-rose-200 bg-rose-50 text-2xl font-semibold text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-100 dark:border-rose-400/20 dark:bg-rose-400/12 dark:text-rose-200"
+          aria-label="Restar, pagar o disminuir saldo"
+          title="Restar / pagar"
+        >
+          -
+        </button>
+      ) : (
+        <Button type="button" size="sm" onClick={() => setOpen(true)}>
+          <AppIcon name="payment" />
+          Pagar
+        </Button>
+      )}
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/25 px-3 py-3 backdrop-blur-sm sm:items-center">
@@ -66,7 +84,7 @@ export function SmartPaymentDialog({
               </button>
             </div>
 
-            <form action={recordSmartPaymentAction} className="flex min-h-0 flex-1 flex-col">
+            <form action={formAction} className="flex min-h-0 flex-1 flex-col">
               <div className="grid gap-4 overflow-y-auto p-5">
                 <input type="hidden" name="creditId" value={creditId} />
                 <input type="hidden" name="installmentId" value={installmentId} />
@@ -85,6 +103,17 @@ export function SmartPaymentDialog({
                 <Field label="Valor a pagar">
                   <CurrencyInput name="amount" value={amount} onValueChange={setAmount} required />
                 </Field>
+
+                {state.error ? (
+                  <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-100">
+                    {state.error}
+                  </div>
+                ) : null}
+                {state.ok ? (
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-100">
+                    Pago registrado. Puedes cerrar este modal y revisar el historial actualizado.
+                  </div>
+                ) : null}
 
                 <Button type="button" variant="secondary" onClick={usePayoffAmount} className="w-full sm:w-fit">
                   Pago total al dia de hoy
@@ -125,11 +154,12 @@ export function SmartPaymentDialog({
               </div>
 
               <div className="flex flex-col gap-2 border-t border-border bg-card p-4 sm:flex-row sm:justify-end">
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="w-full sm:w-auto">
+                <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="w-full sm:w-auto" disabled={pending}>
                   Cancelar
                 </Button>
-                <Button type="submit" className="w-full sm:w-auto">
-                  Registrar pago
+                <Button type="submit" className="w-full sm:w-auto" disabled={pending}>
+                  {pending ? <AppIcon name="spinner" /> : null}
+                  {pending ? "Registrando..." : "Registrar pago"}
                 </Button>
               </div>
             </form>

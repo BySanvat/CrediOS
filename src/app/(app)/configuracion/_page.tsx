@@ -1,8 +1,11 @@
 import { cookies } from "next/headers";
+import { appNavItems } from "@/components/layout/app-shell";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/field";
+import { BottomNavSettings } from "@/features/navigation/bottom-nav-settings";
 import { CreditToolsSetting } from "@/features/onboarding/credit-tools-setting";
 import { UsageModeSetting } from "@/features/onboarding/usage-mode-setting";
 import { AccentColorSetting } from "@/features/personalization/accent-color-picker";
@@ -22,6 +25,7 @@ export default async function SettingsPage() {
     usageMode,
     parseCreditToolsEnabled(cookieStore.get(CREDIT_TOOLS_COOKIE)?.value),
   );
+  const visibleNavItems = appNavItems.filter((item) => showCreditTools || item.group !== "Creditos y cartera");
 
   const { data: profile } = await ctx.supabase
     .from("profiles")
@@ -94,6 +98,26 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <CreditToolsSetting initialEnabled={showCreditTools} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Accesos rapidos</CardTitle>
+            <CardDescription>Ordena la barra inferior movil estilo Sanvat. El menu lateral sigue mostrando todo.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BottomNavSettings items={visibleNavItems} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Cuenta</CardTitle>
+            <CardDescription>Cierra sesion solo cuando quieras salir de este navegador.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LogoutButton />
           </CardContent>
         </Card>
 

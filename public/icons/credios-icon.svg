@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="CrediOS">
+  <rect width="192" height="192" rx="46" fill="#FCFBF7"/>
+  <circle cx="96" cy="96" r="62" fill="#EDF8EF"/>
+  <path d="M60 102c0-25 16-43 39-43 14 0 26 6 34 16l-18 15c-4-5-9-8-16-8-11 0-18 8-18 20s7 20 18 20c7 0 12-3 16-8l18 15c-8 10-20 16-34 16-23 0-39-18-39-43Z" fill="#245C38"/>
+  <path d="M103 92h42v20h-42z" rx="10" fill="#79B985"/>
+</svg>

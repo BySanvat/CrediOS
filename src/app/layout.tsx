@@ -1,9 +1,23 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "CrediOS by Sanvat",
   description: "Simula, guarda y administra creditos, deudas, pagos, abonos y cartera.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "CrediOS",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: "/icons/credios-icon.svg",
+    apple: "/icons/credios-icon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#79B985",
 };
 
 export default function RootLayout({

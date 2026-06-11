@@ -109,7 +109,10 @@ export async function createPersonalTransactionAction(formData: FormData) {
 const quickAddSchema = z.object({
   quickText: z.string().min(2).max(240),
   categoryId: z.string().uuid().optional().or(z.literal("")),
+  direction: z.enum(["income", "expense"]).optional(),
   type: z.enum(["income", "expense"]).optional(),
+  movementKind: z.enum(["normal", "fixed"]).optional(),
+  priority: z.string().optional(),
   occurredAt: z.string().optional(),
 });
 
@@ -124,12 +127,35 @@ export async function quickAddPersonalTransactionAction(formData: FormData) {
     throw new Error("Agrega un monto para registrar el movimiento.");
   }
 
-  const type = parsed.type ?? quick.type;
+  const type = parsed.direction ?? parsed.type ?? quick.type;
   const suggested = categories.find(
     (category) => category.type === type && category.name.toLowerCase() === quick.suggestedCategoryName?.toLowerCase(),
   );
   const categoryId = parsed.categoryId || suggested?.id || categories.find((category) => category.type === type)?.id || null;
   const occurredAt = parsed.occurredAt || quick.occurredAt;
+  const movementKind = parsed.movementKind ?? "normal";
+
+  if (movementKind === "fixed") {
+    const noteTemplate = parsed.priority === "on" ? `[Prioridad] ${quick.noteNormalized}` : quick.noteNormalized;
+    const { error } = await ctx.supabase.from("recurring_rules").insert({
+      workspace_id: ctx.workspace.id,
+      category_id: categoryId,
+      type,
+      amount_cents: quick.amountCents,
+      currency: ctx.workspace.default_currency,
+      note_template: noteTemplate,
+      frequency: "monthly",
+      interval_count: 1,
+      starts_at: occurredAt,
+      next_run_at: occurredAt,
+      active: true,
+    });
+
+    if (error) throw new Error(error.message);
+    revalidateFinance();
+    return;
+  }
+
   const hash = await duplicateHash({
     workspaceId: ctx.workspace.id,
     type,
@@ -316,7 +342,7 @@ export async function confirmRecurringRuleAction(formData: FormData) {
 
   if (error || !rule) throw new Error(error?.message ?? "No se encontro el fijo mensual.");
 
-  const note = `${rule.type === "income" ? "Ingreso fijo" : "Gasto fijo"}: ${rule.note_template}`;
+  const note = `${rule.type === "income" ? "Ingreso fijo" : "Egreso fijo"}: ${rule.note_template}`;
   const hash = await duplicateHash({
     workspaceId: ctx.workspace.id,
     type: rule.type,

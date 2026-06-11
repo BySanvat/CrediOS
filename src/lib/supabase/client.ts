@@ -7,6 +7,7 @@ export type SupabaseBrowserConfig = {
   url?: string;
   publishableKey?: string;
   googleEnabled?: boolean;
+  googleProviderReady?: boolean;
 };
 
 export function createClient(config?: SupabaseBrowserConfig) {
