@@ -2,6 +2,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { ConfigNotice } from "@/components/ui/config-notice";
 import { getAppContext } from "@/server/context";
 
+export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function PrivateLayout({ children }: { children: React.ReactNode }) {

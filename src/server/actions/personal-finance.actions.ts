@@ -1,6 +1,5 @@
 "use server";
 
-import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -23,16 +22,17 @@ function revalidateFinance() {
   revalidatePath("/dashboard");
 }
 
-function duplicateHash(input: {
+async function duplicateHash(input: {
   workspaceId: string;
   type: string;
   amountCents: number;
   noteNormalized: string;
   occurredAt: string;
 }) {
-  return createHash("sha256")
-    .update(`${input.workspaceId}|${input.type}|${input.amountCents}|${input.noteNormalized}|${input.occurredAt}`)
-    .digest("hex");
+  const payload = `${input.workspaceId}|${input.type}|${input.amountCents}|${input.noteNormalized}|${input.occurredAt}`;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
+
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 const categorySchema = z.object({
@@ -79,7 +79,7 @@ export async function createPersonalTransactionAction(formData: FormData) {
   const parsed = transactionSchema.parse(Object.fromEntries(formData));
   const amountCents = moneyToCents(parsed.amount);
   const noteNormalized = parsed.note.trim().toLowerCase();
-  const hash = duplicateHash({
+  const hash = await duplicateHash({
     workspaceId: ctx.workspace.id,
     type: parsed.type,
     amountCents,
@@ -129,7 +129,7 @@ export async function quickAddPersonalTransactionAction(formData: FormData) {
   );
   const categoryId = parsed.categoryId || suggested?.id || categories.find((category) => category.type === type)?.id || null;
   const occurredAt = parsed.occurredAt || quick.occurredAt;
-  const hash = duplicateHash({
+  const hash = await duplicateHash({
     workspaceId: ctx.workspace.id,
     type,
     amountCents: quick.amountCents,
@@ -171,7 +171,7 @@ export async function updatePersonalTransactionAction(formData: FormData) {
       note_raw: parsed.note.trim(),
       note_normalized: noteNormalized,
       occurred_at: parsed.occurredAt,
-      duplicate_hash: duplicateHash({
+      duplicate_hash: await duplicateHash({
         workspaceId: ctx.workspace.id,
         type: parsed.type,
         amountCents,
