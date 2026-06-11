@@ -1,13 +1,18 @@
+import { cookies } from "next/headers";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/field";
+import { UsageModeSetting } from "@/features/onboarding/usage-mode-setting";
+import { parseUsageMode, USAGE_MODE_COOKIE } from "@/lib/usage-mode";
 import { updateSettingsAction } from "@/server/actions/settings.actions";
 import { getAppContext } from "@/server/context";
 
 export default async function SettingsPage() {
   const ctx = await getAppContext();
   if (!ctx.configured) return null;
+  const cookieStore = await cookies();
+  const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value);
 
   const { data: profile } = await ctx.supabase
     .from("profiles")
@@ -20,6 +25,7 @@ export default async function SettingsPage() {
       <PageHeader
         title="Configuracion"
         description="Perfil, workspace, moneda base y preparacion para deploy. El tema claro/oscuro se controla desde la barra superior."
+        icon="settings"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
@@ -49,6 +55,16 @@ export default async function SettingsPage() {
                 Guardar configuracion
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Preferencia de inicio</CardTitle>
+            <CardDescription>Ordena el dashboard para uso personal o gestion de cartera.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UsageModeSetting initialMode={usageMode} />
           </CardContent>
         </Card>
 

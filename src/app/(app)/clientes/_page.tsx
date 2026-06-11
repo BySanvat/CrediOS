@@ -34,6 +34,7 @@ export default async function ClientsPage({
       <PageHeader
         title="Clientes"
         description="Organiza personas asociadas a cartera. Para deudas propias puedes crear creditos personales sin cliente."
+        icon="users"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
 import { archiveCreditAction, createCreditAction } from "@/server/actions/credits.actions";
@@ -33,6 +34,7 @@ export default async function CreditsPage() {
       <PageHeader
         title="Creditos y deudas"
         description="Registra deudas manuales o administra las creadas desde simulaciones. CrediOS no desembolsa dinero."
+        icon="credit"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
@@ -58,7 +60,7 @@ export default async function CreditsPage() {
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Monto">
-                  <Input name="amount" inputMode="decimal" required />
+                  <CurrencyInput name="amount" required />
                 </Field>
                 <Field label="Plazo meses">
                   <Input name="termMonths" type="number" min={1} max={600} required />
@@ -66,7 +68,7 @@ export default async function CreditsPage() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Tasa">
-                  <Input name="rateValue" inputMode="decimal" required />
+                  <RateInput name="rateValue" required />
                 </Field>
                 <Field label="Tipo de tasa">
                   <Select name="rateType" defaultValue="monthly_effective">
@@ -81,10 +83,10 @@ export default async function CreditsPage() {
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Cargo mensual">
-                  <Input name="monthlyFee" inputMode="decimal" defaultValue="0" />
+                  <CurrencyInput name="monthlyFee" defaultValue="0" />
                 </Field>
                 <Field label="Seguro mensual">
-                  <Input name="monthlyInsurance" inputMode="decimal" defaultValue="0" />
+                  <CurrencyInput name="monthlyInsurance" defaultValue="0" />
                 </Field>
               </div>
               <Field label="Notas">

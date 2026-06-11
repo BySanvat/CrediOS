@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { calculateLoanSummary, formatMoneyCOP, moneyToCents, type RateType } from "@/domain/finance";
 import { saveSimulationAction } from "@/server/actions/simulations.actions";
@@ -64,11 +65,10 @@ export function SimulatorClient() {
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Monto">
-                <Input
+                <CurrencyInput
                   name="amount"
-                  inputMode="decimal"
                   value={values.amount}
-                  onChange={(event) => update("amount", event.target.value)}
+                  onValueChange={(value) => update("amount", value)}
                 />
               </Field>
               <Field label="Plazo en meses">
@@ -84,11 +84,10 @@ export function SimulatorClient() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Tasa">
-                <Input
+                <RateInput
                   name="rateValue"
-                  inputMode="decimal"
                   value={values.rateValue}
-                  onChange={(event) => update("rateValue", event.target.value)}
+                  onValueChange={(value) => update("rateValue", value)}
                 />
               </Field>
               <Field label="Tipo de tasa">
@@ -113,27 +112,24 @@ export function SimulatorClient() {
             </Field>
             <div className="grid gap-4 sm:grid-cols-3">
               <Field label="Cargo mensual">
-                <Input
+                <CurrencyInput
                   name="monthlyFee"
-                  inputMode="decimal"
                   value={values.monthlyFee}
-                  onChange={(event) => update("monthlyFee", event.target.value)}
+                  onValueChange={(value) => update("monthlyFee", value)}
                 />
               </Field>
               <Field label="Seguro mensual">
-                <Input
+                <CurrencyInput
                   name="monthlyInsurance"
-                  inputMode="decimal"
                   value={values.monthlyInsurance}
-                  onChange={(event) => update("monthlyInsurance", event.target.value)}
+                  onValueChange={(value) => update("monthlyInsurance", value)}
                 />
               </Field>
               <Field label="Cargo inicial">
-                <Input
+                <CurrencyInput
                   name="upfrontFee"
-                  inputMode="decimal"
                   value={values.upfrontFee}
-                  onChange={(event) => update("upfrontFee", event.target.value)}
+                  onValueChange={(value) => update("upfrontFee", value)}
                 />
               </Field>
             </div>

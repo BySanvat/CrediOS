@@ -23,7 +23,9 @@ const baseLoan = {
 
 describe("financial engine", () => {
   it("converts money to cents with explicit rounding", () => {
-    expect(moneyToCents("123.456")).toBe(12346);
+    expect(moneyToCents("123,456")).toBe(12346);
+    expect(moneyToCents("123.456")).toBe(12_345_600);
+    expect(moneyToCents("1.000.000")).toBe(100_000_000);
   });
 
   it("handles zero interest", () => {

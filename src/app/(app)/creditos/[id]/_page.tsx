@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP, type RateType } from "@/domain/finance";
 import { recordPaymentAction } from "@/server/actions/payments.actions";
@@ -58,6 +59,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
         description={`${credit.clients?.full_name ?? "Deuda personal"} · saldo ${formatMoneyCOP(
           credit.current_balance_cents,
         )}`}
+        icon="credit"
         action={
           <Button asChild variant="secondary">
             <Link href="/creditos">
@@ -141,7 +143,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
                 </Field>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Valor">
-                    <Input name="amount" inputMode="decimal" required />
+                    <CurrencyInput name="amount" required />
                   </Field>
                   <Field label="Fecha">
                     <Input name="paymentDate" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
 import { buildBudgetProgress, getPeriodRange, periodFromSearchParam } from "@/domain/personal-finance";
@@ -49,6 +50,7 @@ export default async function PersonalBudgetsPage({
       <PageHeader
         title="Presupuestos"
         description="Define limites por categoria y revisa desviaciones con una lectura suave."
+        icon="target"
         action={<PeriodTabs basePath="/finanzas/presupuestos" active={period} />}
       />
 
@@ -77,7 +79,7 @@ export default async function PersonalBudgetsPage({
                   </Select>
                 </Field>
                 <Field label="Monto">
-                  <Input name="amount" inputMode="decimal" required />
+                  <CurrencyInput name="amount" required />
                 </Field>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">

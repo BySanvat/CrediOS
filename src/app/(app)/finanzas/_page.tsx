@@ -91,6 +91,7 @@ export default async function PersonalFinancePage({
       <PageHeader
         title="Finanzas personales"
         description="Registra movimientos, entiende tu flujo y conecta tus decisiones con deudas y abonos."
+        icon="wallet"
         action={<PeriodTabs basePath="/finanzas" active={period} />}
       />
 

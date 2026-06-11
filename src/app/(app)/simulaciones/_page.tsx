@@ -37,6 +37,7 @@ export default async function SimulationsPage() {
       <PageHeader
         title="Simulaciones guardadas"
         description="Escenarios guardados por accion explicita. Puedes duplicarlos o convertirlos en una deuda administrada."
+        icon="file"
         action={
           <Button asChild>
             <Link href="/simulador">Nueva simulacion</Link>

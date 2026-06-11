@@ -78,6 +78,7 @@ export default async function PersonalReportsPage({
       <PageHeader
         title="Reportes"
         description="Resumen limpio del periodo y export CSV para analisis externo."
+        icon="chart"
         action={<PeriodTabs basePath="/finanzas/reportes" active={period} />}
       />
 

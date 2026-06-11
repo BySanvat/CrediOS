@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { parseFormattedNumber } from "@/lib/utils/number-format";
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP });
 
@@ -7,7 +8,7 @@ export function moneyToCents(value: string | number) {
     return 0;
   }
 
-  return new Decimal(value).mul(100).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toNumber();
+  return new Decimal(parseFormattedNumber(value)).mul(100).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toNumber();
 }
 
 export function centsToMoney(cents: number) {
@@ -27,6 +28,6 @@ export function formatMoneyCOP(cents: number) {
 }
 
 export function normalizePercent(value: string | number) {
-  const decimal = new Decimal(value || 0);
+  const decimal = new Decimal(parseFormattedNumber(value || 0));
   return decimal.div(100);
 }

@@ -7,6 +7,7 @@ export default function SimulatorPage() {
       <PageHeader
         title="Simulador"
         description="Simula cuotas, intereses, costos y tabla de amortizacion. CrediOS no otorga creditos; esta pantalla ayuda a comparar escenarios."
+        icon="calculator"
       />
       <SimulatorClient />
     </>

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
 import { getPeriodRange, periodFromSearchParam } from "@/domain/personal-finance";
@@ -50,6 +51,7 @@ export default async function PersonalTransactionsPage({
       <PageHeader
         title="Movimientos"
         description="Captura ingresos y gastos con fecha completa, categoria y trazabilidad por workspace."
+        icon="swap"
         action={<PeriodTabs basePath="/finanzas/movimientos" active={period} />}
       />
 
@@ -83,7 +85,7 @@ export default async function PersonalTransactionsPage({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Monto">
-                  <Input name="amount" inputMode="decimal" required />
+                  <CurrencyInput name="amount" required />
                 </Field>
                 <Field label="Fecha">
                   <Input name="occurredAt" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
@@ -180,7 +182,7 @@ export default async function PersonalTransactionsPage({
                           </Select>
                         </Field>
                         <Field label="Monto">
-                          <Input name="amount" defaultValue={String(transaction.amount_cents / 100)} />
+                          <CurrencyInput name="amount" defaultValue={String(transaction.amount_cents / 100)} />
                         </Field>
                         <Field label="Fecha">
                           <Input name="occurredAt" type="date" defaultValue={transaction.occurred_at} />

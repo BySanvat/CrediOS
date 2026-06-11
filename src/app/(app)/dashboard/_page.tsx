@@ -1,15 +1,21 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { PageHeader } from "@/components/layout/page-header";
+import { AppIcon, type IconName } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatMoneyCOP } from "@/domain/finance";
 import { getPeriodRange, summarizeTransactions } from "@/domain/personal-finance";
+import { parseUsageMode, USAGE_MODE_COOKIE, usageModeCopy } from "@/lib/usage-mode";
 import { getAppContext } from "@/server/context";
 
 export default async function DashboardPage() {
   const ctx = await getAppContext();
   if (!ctx.configured) return null;
+  const cookieStore = await cookies();
+  const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value) ?? "portfolio";
+  const modeCopy = usageModeCopy[usageMode];
 
   const [
     simulations,
@@ -53,20 +59,25 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        description="Resumen operativo de simulaciones, deudas, clientes, pagos y recordatorios."
+        title={modeCopy.dashboardTitle}
+        description={modeCopy.dashboardDescription}
+        icon={usageMode === "personal" ? "wallet" : "dashboard"}
         action={
           <Button asChild>
-            <Link href="/simulador">Simular credito</Link>
+            <Link href={modeCopy.primaryHref}>{modeCopy.primaryAction}</Link>
           </Button>
         }
       />
 
+      {usageMode === "personal" ? (
+        <PersonalDashboardBlock personalSummary={personalSummary} />
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Metric mark="S" label="Simulaciones" value={String(simulations.count ?? 0)} />
-        <Metric mark="C" label="Clientes" value={String(clients.count ?? 0)} />
-        <Metric mark="D" label="Deudas activas" value={String(activeCredits.filter((c) => c.status === "active").length)} />
-        <Metric mark="V" label="Vencidas" value={String(lateCount)} tone={lateCount ? "text-amber-600" : ""} />
+        <Metric icon="file" label="Simulaciones" value={String(simulations.count ?? 0)} />
+        <Metric icon="users" label="Clientes" value={String(clients.count ?? 0)} />
+        <Metric icon="credit" label="Deudas activas" value={String(activeCredits.filter((c) => c.status === "active").length)} />
+        <Metric icon="bell" label="Vencidas" value={String(lateCount)} tone={lateCount ? "text-amber-600" : ""} />
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -77,24 +88,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <Card className="bg-[linear-gradient(135deg,var(--card),var(--surface-warm))]">
-          <CardHeader>
-            <CardTitle>Finanzas personales</CardTitle>
-            <CardDescription>Flujo personal del mes actual.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <MoneyMetric label="Ingresos" value={personalSummary.income} />
-              <MoneyMetric label="Gastos" value={personalSummary.expense} />
-              <MoneyMetric label="Balance" value={personalSummary.net} />
-            </div>
-            <div className="mt-5">
-              <Button asChild href="/finanzas" variant="secondary">
-                Abrir finanzas
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {usageMode === "portfolio" ? <PersonalDashboardBlock personalSummary={personalSummary} compact /> : null}
 
         <Card>
           <CardHeader>
@@ -146,12 +140,12 @@ export default async function DashboardPage() {
 }
 
 function Metric({
-  mark,
+  icon,
   label,
   value,
   tone,
 }: {
-  mark: string;
+  icon: IconName;
   label: string;
   value: string;
   tone?: string;
@@ -163,9 +157,44 @@ function Metric({
           <p className="text-sm text-muted">{label}</p>
           <p className={`mt-1 text-2xl font-semibold tabular ${tone ?? ""}`}>{value}</p>
         </div>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-warm text-xs font-semibold text-accent">
-          {mark}
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-warm text-accent">
+          <AppIcon name={icon} />
         </span>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PersonalDashboardBlock({
+  personalSummary,
+  compact,
+}: {
+  personalSummary: { income: number; expense: number; net: number };
+  compact?: boolean;
+}) {
+  return (
+    <Card className="mb-6 bg-[linear-gradient(135deg,var(--card),var(--surface-warm))]">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <AppIcon name="wallet" className="text-accent" />
+          Finanzas personales
+        </CardTitle>
+        <CardDescription>Flujo personal del mes actual.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <MoneyMetric label="Ingresos" value={personalSummary.income} />
+          <MoneyMetric label="Gastos" value={personalSummary.expense} />
+          <MoneyMetric label="Balance" value={personalSummary.net} />
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild href="/finanzas" variant={compact ? "secondary" : "primary"}>
+            Abrir finanzas
+          </Button>
+          <Button asChild href="/finanzas/movimientos" variant="secondary">
+            Movimientos
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

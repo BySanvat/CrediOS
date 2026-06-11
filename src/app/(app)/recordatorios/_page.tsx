@@ -36,6 +36,7 @@ export default async function RemindersPage() {
       <PageHeader
         title="Recordatorios"
         description="Alertas internas para fechas de pago, seguimiento de cartera o tareas financieras."
+        icon="bell"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">

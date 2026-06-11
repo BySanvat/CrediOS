@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
 import { createRecurringRuleAction, toggleRecurringRuleAction } from "@/server/actions/personal-finance.actions";
@@ -26,6 +27,7 @@ export default async function PersonalRecurringPage() {
       <PageHeader
         title="Recurrentes"
         description="Reglas visibles para gastos e ingresos frecuentes. P0 no ejecuta cargos automaticos."
+        icon="bell"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -59,7 +61,7 @@ export default async function PersonalRecurringPage() {
               </Field>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Monto">
-                  <Input name="amount" inputMode="decimal" required />
+                  <CurrencyInput name="amount" required />
                 </Field>
                 <Field label="Frecuencia">
                   <Select name="frequency" defaultValue="monthly">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/field";
@@ -22,7 +23,11 @@ export function AuthForm({
   const [loading, setLoading] = useState(false);
   const configured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loading) return;
+
+    const formData = new FormData(event.currentTarget);
     setError(null);
     setMessage(null);
     setLoading(true);
@@ -42,7 +47,7 @@ export function AuthForm({
         router.push(params.get("next") ?? "/dashboard");
         router.refresh();
       } else {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -50,6 +55,11 @@ export function AuthForm({
           },
         });
         if (signUpError) throw signUpError;
+        if (data.session) {
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        }
         setMessage("Cuenta creada. Si tu proyecto requiere confirmacion, revisa el correo antes de ingresar.");
       }
     } catch (caught) {
@@ -70,12 +80,18 @@ export function AuthForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="grid gap-4">
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <Field label="Correo">
             <Input name="email" type="email" autoComplete="email" required placeholder="tu@email.com" />
           </Field>
           <Field label="Contrasena">
-            <Input name="password" type="password" autoComplete="current-password" required minLength={6} />
+            <Input
+              name="password"
+              type="password"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              required
+              minLength={6}
+            />
           </Field>
           {error ? (
             <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200">
@@ -87,8 +103,9 @@ export function AuthForm({
               {message}
             </p>
           ) : null}
-          <Button type="submit" disabled={loading}>
-            {loading ? "Procesando..." : mode === "login" ? "Ingresar" : "Crear cuenta"}
+          <Button type="submit" disabled={loading} aria-busy={loading} className="min-w-36">
+            {loading ? <AppIcon name="spinner" /> : null}
+            {loading ? (mode === "login" ? "Ingresando..." : "Creando cuenta...") : mode === "login" ? "Ingresar" : "Crear cuenta"}
           </Button>
         </form>
         <p className="mt-5 text-sm text-muted">

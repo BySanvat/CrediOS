@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import {
   formatMoneyCOP,
@@ -83,7 +84,7 @@ export function ExtraPaymentForm({
           <input type="hidden" name="creditId" value={creditId} />
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Valor del abono">
-              <Input name="amount" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              <CurrencyInput name="amount" value={amount} onValueChange={setAmount} />
             </Field>
             <Field label="Fecha">
               <Input
