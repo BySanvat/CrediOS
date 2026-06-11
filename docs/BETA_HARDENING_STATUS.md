@@ -22,7 +22,19 @@ Esta fase endurece el MVP existente sin agregar grandes modulos nuevos. El foco 
 
 ## Estado de Supabase real
 
-No probado contra Supabase real en esta sesion porque no existe `.env.local` ni `DATABASE_URL` PostgreSQL real disponible.
+No probado contra Supabase real en la sesion de hardening porque no existia `.env.local` ni `DATABASE_URL` PostgreSQL real disponible.
+
+En la sesion de conexion real posterior, `.env.local` existe pero las variables de Supabase/PostgreSQL siguen vacias. Ver `docs/REAL_SUPABASE_VALIDATION_STATUS.md`.
+
+Validaciones locales de esa sesion:
+
+- `npm run test:run`: pasa.
+- `npm run typecheck`: pasa.
+- `npm run lint`: pasa.
+- `npm run build`: pasa.
+- `npm run e2e`: pasa.
+
+Vercel CLI esta disponible, pero el proyecto no esta vinculado y no se hizo deploy.
 
 El archivo `.env.example` tenia valores cruzados:
 
