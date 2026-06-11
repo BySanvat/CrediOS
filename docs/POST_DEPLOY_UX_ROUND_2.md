@@ -30,6 +30,6 @@ Esta ronda corrige mejoras reales detectadas despues del deploy inicial sin camb
 
 ## Pendientes operativos
 
-- Aplicar la migracion `0005_smart_installment_payment_rpc.sql` en Supabase real antes de probar pagos inteligentes en produccion.
+- La migracion `0005_smart_installment_payment_rpc.sql` fue aplicada y la RPC fue verificada en Supabase real el 2026-06-11.
 - Habilitar Google provider en Supabase Auth.
 - Ejecutar smoke test en Cloudflare Pages despues del push/deploy.

@@ -50,6 +50,8 @@ La RPC:
 
 Debe aplicarse en Supabase real antes de usar el flujo inteligente en produccion.
 
+Estado actual: aplicada y verificada en Supabase real el 2026-06-11.
+
 ## Interes corrido diario
 
 El interes diario se calcula bajo demanda. No hay cron diario ni escrituras repetidas.
