@@ -7,10 +7,10 @@ import { type UsageMode, usageModeCopy } from "@/lib/usage-mode";
 
 const navItems: NavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", group: "Inicio" },
-  { href: "/finanzas", label: "Finanzas", icon: "wallet", group: "Finanzas personales" },
-  { href: "/finanzas/movimientos", label: "Movimientos", icon: "swap", group: "Finanzas personales" },
-  { href: "/finanzas/presupuestos", label: "Presupuestos", icon: "target", group: "Finanzas personales" },
-  { href: "/finanzas/reportes", label: "Reportes", icon: "chart", group: "Finanzas personales" },
+  { href: "/finanzas", label: "Mis finanzas", icon: "wallet", group: "Mis finanzas" },
+  { href: "/finanzas/movimientos", label: "Movimientos", icon: "swap", group: "Mis finanzas" },
+  { href: "/finanzas/presupuestos", label: "Presupuestos", icon: "target", group: "Mis finanzas" },
+  { href: "/finanzas/reportes", label: "Reportes", icon: "chart", group: "Mis finanzas" },
   { href: "/simulador", label: "Simulador", icon: "calculator", group: "Creditos y cartera" },
   { href: "/simulaciones", label: "Simulaciones", icon: "file", group: "Creditos y cartera" },
   { href: "/clientes", label: "Clientes", icon: "users", group: "Creditos y cartera" },
@@ -23,12 +23,15 @@ export function AppShell({
   children,
   workspaceName,
   usageMode,
+  showCreditTools,
 }: {
   children: React.ReactNode;
   workspaceName: string;
   usageMode: UsageMode | null;
+  showCreditTools: boolean;
 }) {
   const modeCopy = usageMode ? usageModeCopy[usageMode] : null;
+  const visibleNavItems = navItems.filter((item) => showCreditTools || item.group !== "Creditos y cartera");
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
@@ -39,7 +42,7 @@ export function AppShell({
           {modeCopy ? <p className="mt-1 text-xs text-muted">{modeCopy.label}</p> : null}
         </Link>
         <nav className="mt-8 grid gap-1">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -58,7 +61,7 @@ export function AppShell({
         <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:px-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <MobileSideMenu items={navItems} workspaceName={workspaceName} />
+              <MobileSideMenu items={visibleNavItems} workspaceName={workspaceName} />
               <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-wide text-muted">Workspace</p>
                 <p className="truncate font-semibold">{workspaceName}</p>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP, moneyToCents } from "@/domain/finance";
@@ -118,9 +119,7 @@ export function SmartPaymentDialog({
                 )}
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Fecha">
-                    <Input name="paymentDate" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-                  </Field>
+                  <DatePickerField name="paymentDate" label="Fecha" required defaultValue={new Date().toISOString().slice(0, 10)} />
                   <Field label="Metodo">
                     <Input name="method" placeholder="Efectivo, transferencia..." />
                   </Field>

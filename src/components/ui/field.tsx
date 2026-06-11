@@ -44,12 +44,15 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
 
 export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select
-      {...props}
-      className={cn(
-        "h-11 rounded-2xl border border-border bg-background px-3.5 text-sm outline-none transition duration-150 focus:border-accent focus:ring-2 focus:ring-accent/20",
-        props.className,
-      )}
-    />
+    <span className="relative block">
+      <select
+        {...props}
+        className={cn(
+          "h-11 w-full appearance-none rounded-2xl border border-border bg-background px-3.5 pr-10 text-sm shadow-sm outline-none transition duration-150 focus:border-accent focus:ring-2 focus:ring-accent/20",
+          props.className,
+        )}
+      />
+      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">⌄</span>
+    </span>
   );
 }

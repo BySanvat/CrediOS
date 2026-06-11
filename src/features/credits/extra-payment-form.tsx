@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { CurrencyInput } from "@/components/ui/financial-input";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Field, Select, Textarea } from "@/components/ui/field";
 import {
   formatMoneyCOP,
   moneyToCents,
@@ -86,14 +87,7 @@ export function ExtraPaymentForm({
             <Field label="Valor del abono">
               <CurrencyInput name="amount" value={amount} onValueChange={setAmount} />
             </Field>
-            <Field label="Fecha">
-              <Input
-                name="paymentDate"
-                type="date"
-                value={paymentDate}
-                onChange={(event) => setPaymentDate(event.target.value)}
-              />
-            </Field>
+            <DatePickerField name="paymentDate" label="Fecha" value={paymentDate} onValueChange={setPaymentDate} required />
             <Field label="Estrategia">
               <Select
                 name="strategy"

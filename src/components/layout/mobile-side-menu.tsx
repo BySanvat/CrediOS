@@ -9,7 +9,7 @@ export type NavigationItem = {
   href: string;
   label: string;
   icon: IconName;
-  group: "Inicio" | "Finanzas personales" | "Creditos y cartera" | "Cuenta";
+  group: "Inicio" | "Mis finanzas" | "Creditos y cartera" | "Cuenta";
 };
 
 export function MobileSideMenu({

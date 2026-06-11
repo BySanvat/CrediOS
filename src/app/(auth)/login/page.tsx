@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const cookieStore = await cookies();
-  const initialAccent = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "coral";
+  const initialAccent = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">

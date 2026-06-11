@@ -26,7 +26,7 @@ export function UserIntentOnboarding({
   const router = useRouter();
   const [open, setOpen] = useState(!initialMode || !initialAccent);
   const [step, setStep] = useState<"mode" | "accent">(!initialMode ? "mode" : "accent");
-  const [accent, setAccent] = useState<AccentColorId>(initialAccent ?? "coral");
+  const [accent, setAccent] = useState<AccentColorId>(initialAccent ?? "apple");
   const [saving, setSaving] = useState<UsageMode | null>(null);
 
   function selectMode(mode: UsageMode) {

@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -34,7 +35,7 @@ export default async function CreditsPage() {
     <>
       <PageHeader
         title="Creditos y deudas"
-        description="Registra deudas manuales o administra las creadas desde simulaciones. CrediOS no desembolsa dinero."
+        description="Registra deudas manuales o administra las creadas desde simulaciones con seguimiento claro."
         icon="credit"
       />
 
@@ -79,9 +80,7 @@ export default async function CreditsPage() {
                   </Select>
                 </Field>
               </div>
-              <Field label="Fecha de inicio">
-                <Input name="startDate" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-              </Field>
+              <DatePickerField name="startDate" label="Fecha" required defaultValue={new Date().toISOString().slice(0, 10)} />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Cargo mensual">
                   <CurrencyInput name="monthlyFee" defaultValue="0" />

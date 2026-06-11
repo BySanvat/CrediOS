@@ -356,3 +356,46 @@ export const recurringRules = pgTable(
     index("recurring_rules_category_idx").on(table.workspaceId, table.categoryId),
   ],
 );
+
+export const personalDebts = pgTable(
+  "personal_debts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    name: text("name").notNull(),
+    initialBalanceCents: bigint("initial_balance_cents", { mode: "number" }).notNull(),
+    currentBalanceCents: bigint("current_balance_cents", { mode: "number" }).notNull(),
+    currency: text("currency").default("COP").notNull(),
+    openedAt: date("opened_at").notNull(),
+    notes: text("notes"),
+    status: text("status").default("active").notNull(),
+    createdBy: uuid("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("personal_debts_workspace_idx").on(table.workspaceId),
+    index("personal_debts_status_idx").on(table.workspaceId, table.status),
+    index("personal_debts_opened_idx").on(table.workspaceId, table.openedAt),
+  ],
+);
+
+export const personalDebtMovements = pgTable(
+  "personal_debt_movements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    workspaceId: uuid("workspace_id").notNull(),
+    personalDebtId: uuid("personal_debt_id").notNull(),
+    direction: text("direction").notNull(),
+    amountCents: bigint("amount_cents", { mode: "number" }).notNull(),
+    movementDate: date("movement_date").notNull(),
+    note: text("note"),
+    createdBy: uuid("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("personal_debt_movements_workspace_idx").on(table.workspaceId, table.movementDate),
+    index("personal_debt_movements_debt_idx").on(table.personalDebtId),
+  ],
+);

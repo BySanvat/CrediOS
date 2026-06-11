@@ -177,7 +177,7 @@ function PersonalDashboardBlock({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AppIcon name="wallet" className="text-accent" />
-          Finanzas personales
+          Mis finanzas
         </CardTitle>
         <CardDescription>Flujo personal del mes actual.</CardDescription>
       </CardHeader>
@@ -189,7 +189,7 @@ function PersonalDashboardBlock({
         </div>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild href="/finanzas" variant={compact ? "secondary" : "primary"}>
-            Abrir finanzas
+            Abrir Mis finanzas
           </Button>
           <Button asChild href="/finanzas/movimientos" variant="secondary">
             Movimientos

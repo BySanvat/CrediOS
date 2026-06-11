@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { ConfigNotice } from "@/components/ui/config-notice";
 import { UserIntentOnboarding } from "@/features/onboarding/user-intent-onboarding";
 import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
+import { CREDIT_TOOLS_COOKIE, parseCreditToolsEnabled, shouldShowCreditTools } from "@/lib/credit-tools";
 import { parseUsageMode, USAGE_MODE_COOKIE } from "@/lib/usage-mode";
 import { getAppContext } from "@/server/context";
 
@@ -14,6 +15,10 @@ export default async function PrivateLayout({ children }: { children: React.Reac
   const cookieStore = await cookies();
   const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value);
   const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value);
+  const showCreditTools = shouldShowCreditTools(
+    usageMode,
+    parseCreditToolsEnabled(cookieStore.get(CREDIT_TOOLS_COOKIE)?.value),
+  );
 
   if (!ctx.configured) {
     return (
@@ -26,7 +31,7 @@ export default async function PrivateLayout({ children }: { children: React.Reac
   }
 
   return (
-    <AppShell workspaceName={ctx.workspace.name} usageMode={usageMode}>
+    <AppShell workspaceName={ctx.workspace.name} usageMode={usageMode} showCreditTools={showCreditTools}>
       {children}
       <UserIntentOnboarding initialMode={usageMode} initialAccent={accentColor} />
     </AppShell>

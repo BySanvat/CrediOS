@@ -2,9 +2,10 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput } from "@/components/ui/financial-input";
-import { Field, Input, Select } from "@/components/ui/field";
+import { Field, Select } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
 import { buildBudgetProgress, getPeriodRange, periodFromSearchParam } from "@/domain/personal-finance";
 import { ProgressBar } from "@/features/personal-finance/finance-primitives";
@@ -83,12 +84,8 @@ export default async function PersonalBudgetsPage({
                 </Field>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Desde">
-                  <Input name="activeFrom" type="date" required defaultValue={range.start} />
-                </Field>
-                <Field label="Hasta opcional">
-                  <Input name="activeTo" type="date" />
-                </Field>
+                <DatePickerField name="activeFrom" label="Fecha" required defaultValue={range.start} />
+                <DatePickerField name="activeTo" label="Fecha final" />
               </div>
               <label className="flex items-center gap-2 text-sm text-muted">
                 <input type="checkbox" name="rollover" className="h-4 w-4" />

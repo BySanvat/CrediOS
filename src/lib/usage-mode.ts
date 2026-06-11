@@ -21,9 +21,9 @@ export const usageModeCopy: Record<
     label: "Uso personal",
     description: "Quiero organizar mis deudas, movimientos, presupuestos y finanzas del dia a dia.",
     dashboardTitle: "Panel personal",
-    dashboardDescription: "Tu flujo diario, presupuestos, movimientos y deudas propias en primer plano.",
+    dashboardDescription: "Tus movimientos, presupuestos, registros manuales y flujo personal en primer plano.",
     primaryHref: "/finanzas",
-    primaryAction: "Registrar movimiento",
+    primaryAction: "Abrir Mis finanzas",
   },
   portfolio: {
     label: "Gestion de cartera",

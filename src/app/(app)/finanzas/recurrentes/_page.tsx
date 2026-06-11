@@ -2,11 +2,16 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
-import { createRecurringRuleAction, toggleRecurringRuleAction } from "@/server/actions/personal-finance.actions";
+import {
+  confirmRecurringRuleAction,
+  createRecurringRuleAction,
+  toggleRecurringRuleAction,
+} from "@/server/actions/personal-finance.actions";
 import { getAppContext } from "@/server/context";
 import { getPersonalCategories } from "@/server/personal-finance";
 
@@ -25,8 +30,8 @@ export default async function PersonalRecurringPage() {
   return (
     <>
       <PageHeader
-        title="Recurrentes"
-        description="Reglas visibles para gastos e ingresos frecuentes. P0 no ejecuta cargos automaticos."
+        title="Fijos mensuales"
+        description="Ingresos y gastos frecuentes que CrediOS solo registra cuando los confirmas."
         icon="bell"
       />
 
@@ -76,12 +81,8 @@ export default async function PersonalRecurringPage() {
                 </Field>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Inicia">
-                  <Input name="startsAt" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-                </Field>
-                <Field label="Termina opcional">
-                  <Input name="endsAt" type="date" />
-                </Field>
+                <DatePickerField name="startsAt" label="Fecha" required defaultValue={new Date().toISOString().slice(0, 10)} />
+                <DatePickerField name="endsAt" label="Fecha final" />
               </div>
               <Button type="submit">
                 Guardar recurrente
@@ -119,6 +120,15 @@ export default async function PersonalRecurringPage() {
                         {rule.active ? "Pausar" : "Activar"}
                       </Button>
                     </form>
+                    {rule.active ? (
+                      <form action={confirmRecurringRuleAction} className="mt-3 grid gap-3 border-t border-border pt-3 sm:grid-cols-[auto_auto] sm:items-end">
+                        <input type="hidden" name="id" value={rule.id} />
+                        <DatePickerField name="occurredAt" label="Fecha" defaultValue={new Date().toISOString().slice(0, 10)} required />
+                        <Button type="submit" size="sm">
+                          Confirmar {rule.type === "income" ? "cobro" : "pago"}
+                        </Button>
+                      </form>
+                    ) : null}
                   </div>
                 ))}
               </div>

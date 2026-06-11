@@ -6,7 +6,10 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CurrencyInput } from "@/components/ui/financial-input";
+import { Field, Input, Textarea } from "@/components/ui/field";
 import {
   calculatePayoffQuote,
   formatMoneyCOP,
@@ -14,6 +17,7 @@ import {
   getNextPayableInstallment,
   type RateType,
 } from "@/domain/finance";
+import { increaseCreditBalanceAction } from "@/server/actions/credits.actions";
 import { getAppContext } from "@/server/context";
 
 export default async function CreditDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -211,6 +215,33 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
             monthlyFeeCents={credit.monthly_fee_cents}
             monthlyInsuranceCents={credit.monthly_insurance_cents}
           />
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Aumentar saldo registrado</CardTitle>
+              <CardDescription>
+                Retanqueo administrativo: registra un aumento manual del saldo y recalcula el plan. CrediOS no ofrece ni aprueba creditos.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form action={increaseCreditBalanceAction} className="grid gap-4">
+                <input type="hidden" name="creditId" value={credit.id} />
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Field label="Valor">
+                    <CurrencyInput name="amount" required />
+                  </Field>
+                  <Field label="Nuevo plazo meses">
+                    <Input name="termMonths" type="number" min={1} max={600} defaultValue={Math.max(1, pendingInstallments.length || credit.term_months)} required />
+                  </Field>
+                  <DatePickerField name="movementDate" label="Fecha" defaultValue={new Date().toISOString().slice(0, 10)} required />
+                </div>
+                <Field label="Notas">
+                  <Textarea name="notes" placeholder="Contexto del aumento registrado por el usuario" />
+                </Field>
+                <Button type="submit" variant="secondary">Registrar aumento</Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

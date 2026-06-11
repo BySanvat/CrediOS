@@ -1,6 +1,6 @@
 export const ACCENT_COLOR_COOKIE = "credios_accent_color";
 
-export type AccentColorId = "coral" | "teal" | "lavender" | "sky" | "rose" | "amber" | "sage";
+export type AccentColorId = "apple" | "coral" | "teal" | "lavender" | "sky" | "rose" | "amber" | "sage";
 
 export type AccentColor = {
   id: AccentColorId;
@@ -10,6 +10,7 @@ export type AccentColor = {
 };
 
 export const accentPalette: AccentColor[] = [
+  { id: "apple", name: "Manzana", color: "#6EA96B", soft: "#E6F4E4" },
   { id: "coral", name: "Coral", color: "#FF8A6B", soft: "#FFE1D6" },
   { id: "teal", name: "Menta", color: "#14A799", soft: "#DDF8F1" },
   { id: "lavender", name: "Lavanda", color: "#8B7CF6", soft: "#EEE7FF" },

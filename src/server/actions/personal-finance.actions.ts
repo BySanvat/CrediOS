@@ -6,6 +6,7 @@ import { z } from "zod";
 import { moneyToCents } from "@/domain/finance";
 import {
   findCategorySeedByName,
+  nextRecurringDate,
   parseQuickAdd,
   type BudgetPeriodType,
   type RecurringFrequency,
@@ -293,6 +294,161 @@ export async function toggleRecurringRuleAction(formData: FormData) {
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+  revalidateFinance();
+}
+
+const confirmRecurringSchema = z.object({
+  id: z.string().uuid(),
+  occurredAt: z.string().min(8),
+});
+
+export async function confirmRecurringRuleAction(formData: FormData) {
+  const ctx = await getAppContext();
+  if (!ctx.configured) return;
+
+  const parsed = confirmRecurringSchema.parse(Object.fromEntries(formData));
+  const { data: rule, error } = await ctx.supabase
+    .from("recurring_rules")
+    .select("*")
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", parsed.id)
+    .single();
+
+  if (error || !rule) throw new Error(error?.message ?? "No se encontro el fijo mensual.");
+
+  const note = `${rule.type === "income" ? "Ingreso fijo" : "Gasto fijo"}: ${rule.note_template}`;
+  const hash = await duplicateHash({
+    workspaceId: ctx.workspace.id,
+    type: rule.type,
+    amountCents: rule.amount_cents,
+    noteNormalized: note.toLowerCase(),
+    occurredAt: parsed.occurredAt,
+  });
+
+  const { error: insertError } = await ctx.supabase.from("personal_transactions").insert({
+    workspace_id: ctx.workspace.id,
+    category_id: rule.category_id,
+    type: rule.type,
+    amount_cents: rule.amount_cents,
+    currency: rule.currency,
+    note_raw: note,
+    note_normalized: note.toLowerCase(),
+    occurred_at: parsed.occurredAt,
+    source: "manual",
+    duplicate_hash: hash,
+    created_by: ctx.user.id,
+  });
+
+  if (insertError) throw new Error(insertError.message);
+
+  const nextRunAt = nextRecurringDate(parsed.occurredAt, rule.frequency, rule.interval_count);
+  const active = !rule.ends_at || nextRunAt <= rule.ends_at;
+  const { error: updateError } = await ctx.supabase
+    .from("recurring_rules")
+    .update({ next_run_at: nextRunAt, active })
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", rule.id);
+
+  if (updateError) throw new Error(updateError.message);
+  revalidateFinance();
+}
+
+const personalDebtSchema = z.object({
+  name: z.string().min(2).max(120),
+  amount: z.string().min(1),
+  openedAt: z.string().min(8),
+  notes: z.string().optional(),
+});
+
+export async function createPersonalDebtAction(formData: FormData) {
+  const ctx = await getAppContext();
+  if (!ctx.configured) return;
+
+  const parsed = personalDebtSchema.parse(Object.fromEntries(formData));
+  const amountCents = moneyToCents(parsed.amount);
+  if (amountCents <= 0) throw new Error("El saldo inicial debe ser mayor a cero.");
+
+  const { data: debt, error } = await ctx.supabase
+    .from("personal_debts")
+    .insert({
+      workspace_id: ctx.workspace.id,
+      name: parsed.name.trim(),
+      initial_balance_cents: amountCents,
+      current_balance_cents: amountCents,
+      currency: ctx.workspace.default_currency,
+      opened_at: parsed.openedAt,
+      notes: parsed.notes || null,
+      status: "active",
+      created_by: ctx.user.id,
+    })
+    .select("id")
+    .single();
+
+  if (error || !debt) throw new Error(error?.message ?? "No se pudo crear el registro manual.");
+
+  const { error: movementError } = await ctx.supabase.from("personal_debt_movements").insert({
+    workspace_id: ctx.workspace.id,
+    personal_debt_id: debt.id,
+    direction: "increase",
+    amount_cents: amountCents,
+    movement_date: parsed.openedAt,
+    note: "Saldo inicial",
+    created_by: ctx.user.id,
+  });
+
+  if (movementError) throw new Error(movementError.message);
+  revalidateFinance();
+}
+
+const personalDebtMovementSchema = z.object({
+  debtId: z.string().uuid(),
+  direction: z.enum(["increase", "decrease"]),
+  amount: z.string().min(1),
+  movementDate: z.string().min(8),
+  note: z.string().optional(),
+});
+
+export async function createPersonalDebtMovementAction(formData: FormData) {
+  const ctx = await getAppContext();
+  if (!ctx.configured) return;
+
+  const parsed = personalDebtMovementSchema.parse(Object.fromEntries(formData));
+  const amountCents = moneyToCents(parsed.amount);
+  if (amountCents <= 0) throw new Error("El movimiento debe ser mayor a cero.");
+
+  const { data: debt, error } = await ctx.supabase
+    .from("personal_debts")
+    .select("id,current_balance_cents")
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", parsed.debtId)
+    .single();
+
+  if (error || !debt) throw new Error(error?.message ?? "No se encontro el registro manual.");
+
+  const nextBalance =
+    parsed.direction === "increase"
+      ? debt.current_balance_cents + amountCents
+      : Math.max(0, debt.current_balance_cents - amountCents);
+
+  const { error: movementError } = await ctx.supabase.from("personal_debt_movements").insert({
+    workspace_id: ctx.workspace.id,
+    personal_debt_id: debt.id,
+    direction: parsed.direction,
+    amount_cents: amountCents,
+    movement_date: parsed.movementDate,
+    note: parsed.note || null,
+    created_by: ctx.user.id,
+  });
+
+  if (movementError) throw new Error(movementError.message);
+
+  const { error: updateError } = await ctx.supabase
+    .from("personal_debts")
+    .update({ current_balance_cents: nextBalance, status: nextBalance === 0 ? "closed" : "active" })
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", debt.id);
+
+  if (updateError) throw new Error(updateError.message);
   revalidateFinance();
 }
 

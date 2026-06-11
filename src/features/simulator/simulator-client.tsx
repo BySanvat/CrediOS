@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { calculateLoanSummary, formatMoneyCOP, moneyToCents, type RateType } from "@/domain/finance";
@@ -102,14 +103,13 @@ export function SimulatorClient() {
                 </Select>
               </Field>
             </div>
-            <Field label="Fecha de inicio">
-              <Input
-                name="startDate"
-                type="date"
-                value={values.startDate}
-                onChange={(event) => update("startDate", event.target.value)}
-              />
-            </Field>
+            <DatePickerField
+              name="startDate"
+              label="Fecha"
+              value={values.startDate}
+              onValueChange={(value) => update("startDate", value)}
+              required
+            />
             <div className="grid gap-4 sm:grid-cols-3">
               <Field label="Cargo mensual">
                 <CurrencyInput
@@ -156,13 +156,24 @@ export function SimulatorClient() {
           </CardHeader>
           <CardContent>
             {summary ? (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4">
+                <div className="rounded-[1.75rem] border border-border bg-[linear-gradient(135deg,var(--accent-soft),var(--card))] p-5 shadow-[var(--shadow-card)]">
+                  <p className="text-sm font-medium text-muted">Cuota total estimada</p>
+                  <p className="mt-2 text-4xl font-semibold tracking-normal text-foreground tabular sm:text-5xl">
+                    {formatMoneyCOP(summary.totalMonthlyPaymentCents)}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    Incluye capital, intereses, seguros y cargos mensuales configurados.
+                  </p>
+                  <PaymentComposition summary={summary} />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
                 <Metric label="Cuota base" value={formatMoneyCOP(summary.baseMonthlyPaymentCents)} />
-                <Metric label="Cuota total" value={formatMoneyCOP(summary.totalMonthlyPaymentCents)} />
                 <Metric label="Intereses" value={formatMoneyCOP(summary.totalInterestCents)} />
                 <Metric label="Costos" value={formatMoneyCOP(summary.totalFeesCents)} />
                 <Metric label="Total pagado" value={formatMoneyCOP(summary.totalPaidCents)} />
                 <Metric label="Fecha final" value={summary.finalPaymentDate} />
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted">Completa los datos para ver el resultado.</p>
@@ -204,6 +215,42 @@ export function SimulatorClient() {
             </table>
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function PaymentComposition({
+  summary,
+}: {
+  summary: {
+    schedule: Array<{ principalCents: number; interestCents: number; feesCents: number; totalCents: number }>;
+    totalMonthlyPaymentCents: number;
+  };
+}) {
+  const first = summary.schedule[0];
+  const total = Math.max(1, first?.totalCents ?? summary.totalMonthlyPaymentCents);
+  const fees = first?.feesCents ?? 0;
+  const parts = [
+    { label: "Capital", value: first?.principalCents ?? 0, className: "bg-pastel-blue" },
+    { label: "Intereses", value: first?.interestCents ?? 0, className: "bg-pastel-pink" },
+    { label: "Seguros y cargos", value: fees, className: "bg-pastel-yellow" },
+  ].filter((item) => item.value > 0);
+
+  return (
+    <div className="mt-5 grid gap-3">
+      <div className="flex h-4 overflow-hidden rounded-full bg-background/70 ring-1 ring-border">
+        {parts.map((part) => (
+          <span key={part.label} className={part.className} style={{ width: `${Math.max(6, (part.value / total) * 100)}%` }} />
+        ))}
+      </div>
+      <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
+        {parts.map((part) => (
+          <div key={part.label} className="flex items-center gap-2">
+            <span className={`h-2.5 w-2.5 rounded-full ${part.className}`} />
+            <span>{part.label}: {formatMoneyCOP(part.value)}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

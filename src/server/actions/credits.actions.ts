@@ -109,3 +109,63 @@ export async function archiveCreditAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/creditos");
 }
+
+const increaseCreditSchema = z.object({
+  creditId: z.string().uuid(),
+  amount: z.string().min(1),
+  movementDate: z.string().min(8),
+  termMonths: z.coerce.number().int().min(1).max(600),
+  notes: z.string().optional(),
+});
+
+export async function increaseCreditBalanceAction(formData: FormData) {
+  const ctx = await getAppContext();
+  if (!ctx.configured) return;
+
+  const parsed = increaseCreditSchema.parse(Object.fromEntries(formData));
+  const amountCents = moneyToCents(parsed.amount);
+  if (amountCents <= 0) throw new Error("El aumento debe ser mayor a cero.");
+
+  const { data: credit, error } = await ctx.supabase
+    .from("credit_accounts")
+    .select("*")
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", parsed.creditId)
+    .single();
+
+  if (error || !credit) throw new Error(error?.message ?? "No se encontro la deuda.");
+
+  const newPrincipalCents = credit.current_balance_cents + amountCents;
+  const summary = calculateLoanSummary({
+    principalCents: newPrincipalCents,
+    rateValue: credit.rate_value,
+    rateType: credit.rate_type,
+    termMonths: parsed.termMonths,
+    startDate: parsed.movementDate,
+    monthlyFeeCents: credit.monthly_fee_cents,
+    monthlyInsuranceCents: credit.monthly_insurance_cents,
+    upfrontFeeCents: 0,
+  });
+
+  const { error: rpcError } = await ctx.supabase.rpc("increase_credit_balance_with_schedule", {
+    p_workspace_id: ctx.workspace.id,
+    p_credit_account_id: parsed.creditId,
+    p_amount_cents: amountCents,
+    p_movement_date: parsed.movementDate,
+    p_expected_current_balance_cents: credit.current_balance_cents,
+    p_new_summary: summary,
+    p_new_term_months: parsed.termMonths,
+    p_notes: parsed.notes || null,
+  });
+
+  if (rpcError) {
+    if (rpcError.message.includes("increase_credit_balance_with_schedule")) {
+      throw new Error("Falta aplicar la migracion 0006_ux_round_3_manual_debts_and_restock.sql en Supabase.");
+    }
+    throw new Error(rpcError.message);
+  }
+
+  revalidatePath(`/creditos/${parsed.creditId}`);
+  revalidatePath("/creditos");
+  revalidatePath("/dashboard");
+}

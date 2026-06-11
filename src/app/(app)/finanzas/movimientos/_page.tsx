@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePickerField } from "@/components/ui/date-picker-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -87,9 +88,7 @@ export default async function PersonalTransactionsPage({
                 <Field label="Monto">
                   <CurrencyInput name="amount" required />
                 </Field>
-                <Field label="Fecha">
-                  <Input name="occurredAt" type="date" required defaultValue={new Date().toISOString().slice(0, 10)} />
-                </Field>
+                <DatePickerField name="occurredAt" label="Fecha" required defaultValue={new Date().toISOString().slice(0, 10)} />
               </div>
               <Field label="Nota">
                 <Textarea name="note" required />
@@ -184,9 +183,7 @@ export default async function PersonalTransactionsPage({
                         <Field label="Monto">
                           <CurrencyInput name="amount" defaultValue={String(transaction.amount_cents / 100)} />
                         </Field>
-                        <Field label="Fecha">
-                          <Input name="occurredAt" type="date" defaultValue={transaction.occurred_at} />
-                        </Field>
+                        <DatePickerField name="occurredAt" label="Fecha" defaultValue={transaction.occurred_at} />
                       </div>
                       <Field label="Nota">
                         <Textarea name="note" defaultValue={transaction.note_raw} />

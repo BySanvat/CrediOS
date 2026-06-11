@@ -21,6 +21,10 @@ export type IconName =
   | "home"
   | "palette"
   | "google"
+  | "calendar"
+  | "repeat"
+  | "sun"
+  | "moon"
   | "spinner";
 
 const paths: Record<Exclude<IconName, "spinner">, React.ReactNode> = {
@@ -142,6 +146,28 @@ const paths: Record<Exclude<IconName, "spinner">, React.ReactNode> = {
       <path d="M12 6.6c1.4 0 2.6.5 3.6 1.4l2.6-2.6A8.8 8.8 0 0 0 12 3a9 9 0 0 0-8 4.9l3 2.3a5.4 5.4 0 0 1 5-3.6Z" />
     </>
   ),
+  calendar: (
+    <>
+      <rect x="4" y="5" width="16" height="16" rx="3" />
+      <path d="M8 3v4M16 3v4M4 10h16" />
+      <path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" />
+    </>
+  ),
+  repeat: (
+    <>
+      <path d="M17 2l4 4-4 4" />
+      <path d="M3 11V9a3 3 0 0 1 3-3h15" />
+      <path d="M7 22l-4-4 4-4" />
+      <path d="M21 13v2a3 3 0 0 1-3 3H3" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </>
+  ),
+  moon: <path d="M20 15.5A8 8 0 0 1 8.5 4 7 7 0 1 0 20 15.5Z" />,
 };
 
 export function AppIcon({

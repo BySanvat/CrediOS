@@ -3,9 +3,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/field";
+import { CreditToolsSetting } from "@/features/onboarding/credit-tools-setting";
 import { UsageModeSetting } from "@/features/onboarding/usage-mode-setting";
 import { AccentColorSetting } from "@/features/personalization/accent-color-picker";
 import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
+import { CREDIT_TOOLS_COOKIE, parseCreditToolsEnabled, shouldShowCreditTools } from "@/lib/credit-tools";
 import { parseUsageMode, USAGE_MODE_COOKIE } from "@/lib/usage-mode";
 import { updateSettingsAction } from "@/server/actions/settings.actions";
 import { getAppContext } from "@/server/context";
@@ -15,7 +17,11 @@ export default async function SettingsPage() {
   if (!ctx.configured) return null;
   const cookieStore = await cookies();
   const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value);
-  const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "coral";
+  const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple";
+  const showCreditTools = shouldShowCreditTools(
+    usageMode,
+    parseCreditToolsEnabled(cookieStore.get(CREDIT_TOOLS_COOKIE)?.value),
+  );
 
   const { data: profile } = await ctx.supabase
     .from("profiles")
@@ -78,6 +84,16 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <UsageModeSetting initialMode={usageMode} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Herramientas de cartera</CardTitle>
+            <CardDescription>Activa u oculta creditos, clientes, simulaciones y cartera en la navegacion.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreditToolsSetting initialEnabled={showCreditTools} />
           </CardContent>
         </Card>
 
