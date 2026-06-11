@@ -17,7 +17,7 @@ export default async function SettingsPage() {
   if (!ctx.configured) return null;
   const cookieStore = await cookies();
   const usageMode = parseUsageMode(cookieStore.get(USAGE_MODE_COOKIE)?.value);
-  const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple";
+  const accentColor = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple-green";
   const showCreditTools = shouldShowCreditTools(
     usageMode,
     parseCreditToolsEnabled(cookieStore.get(CREDIT_TOOLS_COOKIE)?.value),

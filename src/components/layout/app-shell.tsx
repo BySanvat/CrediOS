@@ -7,11 +7,12 @@ import { type UsageMode, usageModeCopy } from "@/lib/usage-mode";
 
 const navItems: NavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard", group: "Inicio" },
+  { href: "/simulador", label: "Simulador", icon: "calculator", group: "Inicio" },
   { href: "/finanzas", label: "Mis finanzas", icon: "wallet", group: "Mis finanzas" },
   { href: "/finanzas/movimientos", label: "Movimientos", icon: "swap", group: "Mis finanzas" },
   { href: "/finanzas/presupuestos", label: "Presupuestos", icon: "target", group: "Mis finanzas" },
+  { href: "/finanzas/recurrentes", label: "Fijos mensuales", icon: "repeat", group: "Mis finanzas" },
   { href: "/finanzas/reportes", label: "Reportes", icon: "chart", group: "Mis finanzas" },
-  { href: "/simulador", label: "Simulador", icon: "calculator", group: "Creditos y cartera" },
   { href: "/simulaciones", label: "Simulaciones", icon: "file", group: "Creditos y cartera" },
   { href: "/clientes", label: "Clientes", icon: "users", group: "Creditos y cartera" },
   { href: "/creditos", label: "Creditos / deudas", icon: "credit", group: "Creditos y cartera" },
@@ -35,7 +36,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
-      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-border bg-card/90 p-5 shadow-[var(--shadow-soft)] backdrop-blur lg:block">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 overflow-y-auto border-r border-border bg-card/95 p-5 shadow-[var(--shadow-soft)] backdrop-blur lg:block dark:bg-surface-elevated/95">
         <Link href="/dashboard" className="block">
           <p className="text-sm font-semibold text-accent">CrediOS by Sanvat</p>
           <p className="mt-1 text-lg font-semibold">{workspaceName}</p>

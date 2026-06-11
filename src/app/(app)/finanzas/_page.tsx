@@ -103,6 +103,22 @@ export default async function PersonalFinancePage({
 
   const dueRecurring = (recurring.data ?? []).filter((rule) => rule.next_run_at <= new Date().toISOString().slice(0, 10));
   const manualDebtBalance = (manualDebts.data ?? []).reduce((sum, item) => sum + item.current_balance_cents, 0);
+  const manualDebtIds = (manualDebts.data ?? []).map((item) => item.id);
+  const { data: manualDebtMovements } = manualDebtIds.length
+    ? await ctx.supabase
+        .from("personal_debt_movements")
+        .select("*")
+        .eq("workspace_id", ctx.workspace.id)
+        .in("personal_debt_id", manualDebtIds)
+        .order("movement_date", { ascending: false })
+        .limit(80)
+    : { data: [] };
+  const movementsByDebt = new Map<string, typeof manualDebtMovements>();
+  (manualDebtMovements ?? []).forEach((movement) => {
+    const current = movementsByDebt.get(movement.personal_debt_id) ?? [];
+    current.push(movement);
+    movementsByDebt.set(movement.personal_debt_id, current);
+  });
 
   return (
     <>
@@ -135,7 +151,7 @@ export default async function PersonalFinancePage({
       <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_0.9fr]">
         <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle>Registros manuales</CardTitle>
+            <CardTitle>Saldos manuales</CardTitle>
             <CardDescription>
               Saldos flexibles sin tasa ni plan obligatorio: utiles para deudas informales, tarjetas o acumulados personales.
             </CardDescription>
@@ -197,6 +213,23 @@ export default async function PersonalFinancePage({
                         </Field>
                         <Button type="submit" variant="secondary">Registrar movimiento</Button>
                       </form>
+                      <div className="mt-4 grid gap-2 border-t border-border pt-4">
+                        <p className="text-sm font-semibold">Historial</p>
+                        {(movementsByDebt.get(debt.id) ?? []).slice(0, 5).map((movement) => (
+                          <div key={movement.id} className="flex items-center justify-between gap-3 rounded-2xl bg-surface-warm px-3 py-2 text-sm">
+                            <div>
+                              <p className="font-medium">
+                                {movement.direction === "increase" ? "Aumento" : "Disminucion"} - {movement.movement_date}
+                              </p>
+                              {movement.note ? <p className="text-xs text-muted">{movement.note}</p> : null}
+                            </div>
+                            <p className="font-semibold tabular">{formatMoneyCOP(movement.amount_cents)}</p>
+                          </div>
+                        ))}
+                        {!(movementsByDebt.get(debt.id) ?? []).length ? (
+                          <p className="text-sm text-muted">Aun no hay movimientos adicionales.</p>
+                        ) : null}
+                      </div>
                     </details>
                   ))
                 ) : (
@@ -283,7 +316,7 @@ export default async function PersonalFinancePage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Fijos por confirmar</CardTitle>
+            <CardTitle>Ingresos y gastos fijos</CardTitle>
             <CardDescription>Ingresos y gastos fijos no se suman ni restan hasta que confirmes.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -301,7 +334,9 @@ export default async function PersonalFinancePage({
                     <form action={confirmRecurringRuleAction} className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
                       <input type="hidden" name="id" value={rule.id} />
                       <DatePickerField name="occurredAt" label="Fecha" defaultValue={new Date().toISOString().slice(0, 10)} required />
-                      <Button type="submit" size="sm">Confirmar {rule.type === "income" ? "cobro" : "pago"}</Button>
+                      <Button type="submit" size="sm">
+                        {rule.type === "income" ? "Confirmar recibido" : "Marcar como pagado"}
+                      </Button>
                     </form>
                   </div>
                 ))}

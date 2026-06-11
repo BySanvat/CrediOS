@@ -84,16 +84,26 @@ export function DatePickerField({
 
   return (
     <div className={cn("relative grid gap-1.5 text-sm font-medium", className)}>
-      <div className="flex items-center justify-between gap-3">
-        <span>{label}</span>
-        <span className="text-xs font-normal text-muted">{formatDisplayDate(selected)}</span>
-      </div>
       <input type="hidden" name={name} value={selected} required={required} />
-      <Button type="button" variant="secondary" onClick={() => setOpen((current) => !current)} className="h-11 w-12 px-0" aria-label="Abrir calendario">
-        <AppIcon name="calendar" />
-      </Button>
+      <div className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-border bg-background px-3 py-2 shadow-sm transition hover:border-border-strong dark:bg-surface-elevated">
+        <div className="min-w-0">
+          <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
+            <span className="font-medium">{label}</span>
+            <span className="truncate text-xs font-normal text-muted">{formatDisplayDate(selected)}</span>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setOpen((current) => !current)}
+          className="h-9 w-9 shrink-0 px-0"
+          aria-label="Abrir calendario"
+        >
+          <AppIcon name="calendar" />
+        </Button>
+      </div>
       {open ? (
-        <div className="soft-enter absolute left-0 top-full z-40 mt-2 w-[min(19rem,calc(100vw-2rem))] rounded-[1.35rem] border border-border bg-card p-3 shadow-[var(--shadow-soft)]">
+        <div className="soft-enter absolute left-0 top-full z-40 mt-2 w-[min(19rem,calc(100vw-2rem))] overflow-hidden rounded-[1.35rem] border border-border bg-surface-modal p-3 shadow-[var(--shadow-soft)]">
           <div className="flex items-center justify-between gap-2">
             {!required && selected ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => {
@@ -127,7 +137,7 @@ export function DatePickerField({
                   type="button"
                   onClick={() => selectDay(day)}
                   className={cn(
-                    "h-9 rounded-full text-sm transition hover:bg-surface-warm",
+                    "h-9 rounded-full text-sm transition hover:bg-surface-warm focus:outline-none focus:ring-2 focus:ring-accent/30",
                     selected === toDateString(new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), day)))
                       ? "bg-accent text-accent-foreground"
                       : "text-foreground",

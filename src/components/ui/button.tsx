@@ -10,8 +10,8 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants = {
-  primary: "bg-accent text-accent-foreground shadow-sm hover:-translate-y-0.5 hover:shadow-md",
-  secondary: "border border-border bg-card text-foreground shadow-sm hover:-translate-y-0.5 hover:bg-surface-warm hover:shadow-md",
+  primary: "bg-accent text-accent-foreground shadow-sm hover:-translate-y-0.5 hover:brightness-95 hover:shadow-md",
+  secondary: "border border-border bg-card text-foreground shadow-sm hover:-translate-y-0.5 hover:bg-surface-warm hover:shadow-md dark:bg-surface-elevated",
   ghost: "text-foreground hover:bg-surface-warm",
   danger: "bg-rose-600 text-white shadow-sm hover:bg-rose-700",
 };

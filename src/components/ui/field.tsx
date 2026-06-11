@@ -23,7 +23,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "h-11 rounded-2xl border border-border bg-background px-3.5 text-sm outline-none transition duration-150 placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20",
+        "h-11 rounded-2xl border border-border bg-background px-3.5 text-sm outline-none transition duration-150 placeholder:text-muted hover:border-border-strong focus:border-accent focus:ring-2 focus:ring-accent/20 dark:bg-surface-elevated",
         props.className,
       )}
     />
@@ -35,7 +35,7 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
     <textarea
       {...props}
       className={cn(
-        "min-h-24 rounded-2xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition duration-150 placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20",
+        "min-h-24 rounded-2xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition duration-150 placeholder:text-muted hover:border-border-strong focus:border-accent focus:ring-2 focus:ring-accent/20 dark:bg-surface-elevated",
         props.className,
       )}
     />
@@ -48,11 +48,11 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
       <select
         {...props}
         className={cn(
-          "h-11 w-full appearance-none rounded-2xl border border-border bg-background px-3.5 pr-10 text-sm shadow-sm outline-none transition duration-150 focus:border-accent focus:ring-2 focus:ring-accent/20",
+          "h-11 w-full appearance-none rounded-2xl border border-border bg-background px-3.5 pr-10 text-sm shadow-sm outline-none transition duration-150 hover:border-border-strong focus:border-accent focus:ring-2 focus:ring-accent/20 dark:bg-surface-elevated",
           props.className,
         )}
       />
-      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">⌄</span>
+      <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">v</span>
     </span>
   );
 }

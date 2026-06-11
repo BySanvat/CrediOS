@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { calculateLoanSummary, moneyToCents } from "@/domain/finance";
-import { creditFriendlyPath } from "@/lib/utils/slug";
+import { creditFriendlyPathFor } from "@/lib/utils/slug";
 import { getAppContext } from "@/server/context";
 
 const creditSchema = z.object({
@@ -60,7 +60,7 @@ export async function createCreditAction(formData: FormData) {
       notes: parsed.notes || null,
       is_personal: !clientId,
     })
-    .select("id")
+    .select("id,name,created_at")
     .single();
 
   if (error || !credit) throw new Error(error?.message ?? "No se pudo crear la deuda.");
@@ -92,7 +92,12 @@ export async function createCreditAction(formData: FormData) {
   });
 
   revalidatePath("/creditos");
-  redirect(creditFriendlyPath(credit.id, parsed.name));
+  const { data: workspaceCredits } = await ctx.supabase
+    .from("credit_accounts")
+    .select("id,name,created_at")
+    .eq("workspace_id", ctx.workspace.id)
+    .is("archived_at", null);
+  redirect(creditFriendlyPathFor(credit, workspaceCredits ?? [credit]));
 }
 
 export async function archiveCreditAction(formData: FormData) {

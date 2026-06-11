@@ -13,3 +13,7 @@ export function getSupabasePublishableKey() {
 export function isSupabaseConfigured() {
   return Boolean(getSupabaseUrl() && getSupabasePublishableKey());
 }
+
+export function isGoogleAuthEnabled() {
+  return process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
+}

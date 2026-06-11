@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { CurrencyInput, RateInput } from "@/components/ui/financial-input";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
-import { creditFriendlyPath } from "@/lib/utils/slug";
+import { creditFriendlyPathFor } from "@/lib/utils/slug";
 import { archiveCreditAction, createCreditAction } from "@/server/actions/credits.actions";
 import { getAppContext } from "@/server/context";
 
@@ -30,6 +30,8 @@ export default async function CreditsPage() {
       .is("archived_at", null)
       .order("full_name"),
   ]);
+
+  const creditList = credits ?? [];
 
   return (
     <>
@@ -92,9 +94,7 @@ export default async function CreditsPage() {
               <Field label="Notas">
                 <Textarea name="notes" />
               </Field>
-              <Button type="submit">
-                Crear deuda
-              </Button>
+              <Button type="submit">Crear deuda</Button>
             </form>
           </CardContent>
         </Card>
@@ -105,30 +105,42 @@ export default async function CreditsPage() {
             <CardDescription>Consulta saldos, plan de pagos, pagos y abonos.</CardDescription>
           </CardHeader>
           <CardContent>
-            {(credits ?? []).length ? (
+            {creditList.length ? (
               <div className="grid gap-3">
-                {(credits ?? []).map((credit) => (
-                  <div key={credit.id} className="rounded-md border border-border p-4">
+                {creditList.map((credit) => (
+                  <article
+                    key={credit.id}
+                    className="grid gap-4 rounded-[1.25rem] border border-border bg-background p-4 shadow-sm dark:bg-surface-elevated"
+                  >
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <Link href={creditFriendlyPath(credit.id, credit.name)} className="font-semibold text-accent">
+                      <div className="min-w-0">
+                        <Link href={creditFriendlyPathFor(credit, creditList)} className="font-semibold text-accent">
                           {credit.name}
                         </Link>
                         <p className="mt-1 text-sm text-muted">
-                          {credit.clients?.full_name ?? "Personal"} · saldo {formatMoneyCOP(credit.current_balance_cents)}
+                          {credit.clients?.full_name ?? "Personal"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge tone={credit.status === "paid" ? "green" : "teal"}>{credit.status}</Badge>
-                        <form action={archiveCreditAction}>
-                          <input type="hidden" name="id" value={credit.id} />
-                          <Button type="submit" variant="ghost" size="sm">
-                            Archivar
-                          </Button>
-                        </form>
-                      </div>
+                      <Badge tone={credit.status === "paid" ? "green" : "teal"}>{credit.status}</Badge>
                     </div>
-                  </div>
+
+                    <div className="grid gap-1 rounded-2xl bg-surface-warm p-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted">Saldo actual</p>
+                      <p className="text-2xl font-semibold tabular">{formatMoneyCOP(credit.current_balance_cents)}</p>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto">
+                        <Link href={creditFriendlyPathFor(credit, creditList)}>Ver plan de pagos</Link>
+                      </Button>
+                      <form action={archiveCreditAction}>
+                        <input type="hidden" name="id" value={credit.id} />
+                        <Button type="submit" variant="ghost" size="sm" className="w-full sm:w-auto">
+                          Archivar
+                        </Button>
+                      </form>
+                    </div>
+                  </article>
                 ))}
               </div>
             ) : (

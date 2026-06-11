@@ -3,14 +3,14 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { AuthForm } from "@/features/auth/auth-form";
 import { ACCENT_COLOR_COOKIE, parseAccentColor } from "@/lib/accent-theme";
-import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { getSupabasePublishableKey, getSupabaseUrl, isGoogleAuthEnabled } from "@/lib/supabase/env";
 
 export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const cookieStore = await cookies();
-  const initialAccent = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple";
+  const initialAccent = parseAccentColor(cookieStore.get(ACCENT_COLOR_COOKIE)?.value) ?? "apple-green";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
@@ -26,6 +26,7 @@ export default async function LoginPage() {
             supabaseConfig={{
               url: getSupabaseUrl(),
               publishableKey: getSupabasePublishableKey(),
+              googleEnabled: isGoogleAuthEnabled(),
             }}
           />
         </Suspense>

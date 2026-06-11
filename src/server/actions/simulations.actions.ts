@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { calculateLoanSummary, moneyToCents } from "@/domain/finance";
 import type { LoanSummary } from "@/domain/finance";
-import { creditFriendlyPath } from "@/lib/utils/slug";
+import { creditFriendlyPathFor } from "@/lib/utils/slug";
 import { getAppContext } from "@/server/context";
 
 const simulationSchema = z.object({
@@ -175,7 +175,7 @@ export async function convertSimulationToCreditAction(formData: FormData) {
       notes: simulation.notes,
       is_personal: !clientId,
     })
-    .select("id")
+    .select("id,name,created_at")
     .single();
 
   if (creditError || !credit) {
@@ -210,5 +210,10 @@ export async function convertSimulationToCreditAction(formData: FormData) {
   });
 
   revalidatePath("/creditos");
-  redirect(creditFriendlyPath(credit.id, simulation.name));
+  const { data: workspaceCredits } = await ctx.supabase
+    .from("credit_accounts")
+    .select("id,name,created_at")
+    .eq("workspace_id", ctx.workspace.id)
+    .is("archived_at", null);
+  redirect(creditFriendlyPathFor(credit, workspaceCredits ?? [credit]));
 }

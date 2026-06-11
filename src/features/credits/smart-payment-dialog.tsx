@@ -47,7 +47,7 @@ export function SmartPaymentDialog({
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/25 px-3 py-3 backdrop-blur-sm sm:items-center">
-          <div className="soft-enter flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[var(--shadow-soft)]">
+          <div className="soft-enter flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-[1.5rem] border border-border bg-surface-modal shadow-[var(--shadow-soft)]">
             <div className="flex items-start justify-between gap-4 border-b border-border p-5">
               <div>
                 <p className="text-sm font-semibold text-accent">Pago inteligente</p>
@@ -71,9 +71,9 @@ export function SmartPaymentDialog({
                 <input type="hidden" name="creditId" value={creditId} />
                 <input type="hidden" name="installmentId" value={installmentId} />
 
-                <div className="grid gap-3 rounded-[1.2rem] border border-border bg-background p-4 sm:grid-cols-2">
+                <div className="grid gap-3 rounded-[1.2rem] border border-border bg-background p-4 sm:grid-cols-2 dark:bg-surface-elevated">
                   <div>
-                    <p className="text-sm text-muted">Valor de la cuota</p>
+                    <p className="text-sm text-muted">Cuota que se pagara</p>
                     <p className="mt-1 text-xl font-semibold tabular">{formatMoneyCOP(requiredCents)}</p>
                   </div>
                   <div>
@@ -86,14 +86,9 @@ export function SmartPaymentDialog({
                   <CurrencyInput name="amount" value={amount} onValueChange={setAmount} required />
                 </Field>
 
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button type="button" variant="secondary" onClick={() => setAmount(String(Math.round(requiredCents / 100)))} className="w-full sm:w-auto">
-                    Usar valor de cuota
-                  </Button>
-                  <Button type="button" variant="secondary" onClick={usePayoffAmount} className="w-full sm:w-auto">
-                    Usar pago total
-                  </Button>
-                </div>
+                <Button type="button" variant="secondary" onClick={usePayoffAmount} className="w-full sm:w-fit">
+                  Pago total al dia de hoy
+                </Button>
 
                 {excessCents > 0 ? (
                   <div className="grid gap-3 rounded-[1.2rem] border border-accent/40 bg-accent-soft/60 p-4">

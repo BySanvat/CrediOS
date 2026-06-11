@@ -27,6 +27,21 @@ export function AuthForm({
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const configured = Boolean(supabaseConfig.url && supabaseConfig.publishableKey);
+  const googleEnabled = Boolean(supabaseConfig.googleEnabled);
+
+  function friendlyAuthError(caught: unknown) {
+    const message = caught instanceof Error ? caught.message : "";
+    const lower = message.toLowerCase();
+    if (
+      lower.includes("unsupported provider") ||
+      lower.includes("provider is not enabled") ||
+      lower.includes("validation_failed")
+    ) {
+      return "Google aun no esta configurado para este proyecto. Puedes ingresar con correo y contrasena mientras se activa esta opcion.";
+    }
+
+    return message || "No se pudo completar la autenticacion.";
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,7 +83,7 @@ export function AuthForm({
         setMessage("Cuenta creada. Si tu proyecto requiere confirmacion, revisa el correo antes de ingresar.");
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "No se pudo completar la autenticacion.");
+      setError(friendlyAuthError(caught));
     } finally {
       setLoading(false);
     }
@@ -82,6 +97,10 @@ export function AuthForm({
     setGoogleLoading(true);
 
     try {
+      if (!googleEnabled) {
+        throw new Error("Google aun no esta configurado para este proyecto. Puedes ingresar con correo y contrasena mientras se activa esta opcion.");
+      }
+
       if (!configured) {
         throw new Error("Supabase no esta configurado. Completa las variables locales para autenticar.");
       }
@@ -97,11 +116,7 @@ export function AuthForm({
       if (oauthError) throw oauthError;
     } catch (caught) {
       setGoogleLoading(false);
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "No se pudo iniciar Google. Revisa que el provider este habilitado en Supabase.",
-      );
+      setError(friendlyAuthError(caught));
     }
   }
 
@@ -152,7 +167,7 @@ export function AuthForm({
         <Button
           type="button"
           variant="secondary"
-          disabled={loading || googleLoading}
+          disabled={loading || googleLoading || !googleEnabled}
           aria-busy={googleLoading}
           onClick={handleGoogleAuth}
           className="w-full"
@@ -160,6 +175,11 @@ export function AuthForm({
           {googleLoading ? <AppIcon name="spinner" /> : <AppIcon name="google" />}
           {googleLoading ? "Abriendo Google..." : "Continuar con Google"}
         </Button>
+        {!googleEnabled ? (
+          <p className="mt-2 rounded-2xl border border-border bg-surface-warm px-3 py-2 text-xs leading-5 text-muted">
+            Google esta pendiente de activar en Supabase. Mientras tanto, usa correo y contrasena.
+          </p>
+        ) : null}
         <div className="mt-5">
           <AuthAccentPicker initialAccent={initialAccent} />
         </div>

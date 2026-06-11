@@ -157,9 +157,9 @@ export function SimulatorClient() {
           <CardContent>
             {summary ? (
               <div className="grid gap-4">
-                <div className="rounded-[1.75rem] border border-border bg-[linear-gradient(135deg,var(--accent-soft),var(--card))] p-5 shadow-[var(--shadow-card)]">
+                <div className="rounded-[2rem] border border-border bg-[radial-gradient(circle_at_top_right,var(--pastel-blue),transparent_34%),linear-gradient(135deg,var(--accent-soft),var(--card)_72%)] p-6 shadow-[var(--shadow-soft)] sm:p-8 dark:bg-[radial-gradient(circle_at_top_right,var(--pastel-blue),transparent_34%),linear-gradient(135deg,var(--accent-soft),var(--surface-modal)_72%)]">
                   <p className="text-sm font-medium text-muted">Cuota total estimada</p>
-                  <p className="mt-2 text-4xl font-semibold tracking-normal text-foreground tabular sm:text-5xl">
+                  <p className="mt-2 text-5xl font-semibold tracking-normal text-foreground tabular sm:text-6xl">
                     {formatMoneyCOP(summary.totalMonthlyPaymentCents)}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-muted">
@@ -239,7 +239,7 @@ function PaymentComposition({
 
   return (
     <div className="mt-5 grid gap-3">
-      <div className="flex h-4 overflow-hidden rounded-full bg-background/70 ring-1 ring-border">
+      <div className="flex h-5 overflow-hidden rounded-full bg-background/70 ring-1 ring-border dark:bg-background/50">
         {parts.map((part) => (
           <span key={part.label} className={part.className} style={{ width: `${Math.max(6, (part.value / total) * 100)}%` }} />
         ))}

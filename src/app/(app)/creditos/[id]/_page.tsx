@@ -17,39 +17,55 @@ import {
   getNextPayableInstallment,
   type RateType,
 } from "@/domain/finance";
+import { resolveCreditIdFromSlug } from "@/lib/utils/slug";
 import { increaseCreditBalanceAction } from "@/server/actions/credits.actions";
 import { getAppContext } from "@/server/context";
+
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export default async function CreditDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const ctx = await getAppContext();
   if (!ctx.configured) return null;
 
-  const { id } = await params;
+  const { id: identifier } = await params;
+  let creditId = identifier;
+
+  if (!uuidPattern.test(identifier)) {
+    const { data: candidates } = await ctx.supabase
+      .from("credit_accounts")
+      .select("id,name,created_at")
+      .eq("workspace_id", ctx.workspace.id)
+      .is("archived_at", null);
+    const resolved = resolveCreditIdFromSlug(identifier, candidates ?? []);
+    if (!resolved) notFound();
+    creditId = resolved;
+  }
+
   const [{ data: credit }, { data: installments }, { data: payments }, { data: extraPayments }] =
     await Promise.all([
       ctx.supabase
         .from("credit_accounts")
         .select("*, clients(full_name)")
         .eq("workspace_id", ctx.workspace.id)
-        .eq("id", id)
+        .eq("id", creditId)
         .single(),
       ctx.supabase
         .from("installments")
         .select("*")
         .eq("workspace_id", ctx.workspace.id)
-        .eq("credit_account_id", id)
+        .eq("credit_account_id", creditId)
         .order("installment_number"),
       ctx.supabase
         .from("payments")
         .select("*")
         .eq("workspace_id", ctx.workspace.id)
-        .eq("credit_account_id", id)
+        .eq("credit_account_id", creditId)
         .order("payment_date", { ascending: false }),
       ctx.supabase
         .from("extra_payments")
         .select("*")
         .eq("workspace_id", ctx.workspace.id)
-        .eq("credit_account_id", id)
+        .eq("credit_account_id", creditId)
         .order("payment_date", { ascending: false }),
     ]);
 
@@ -220,7 +236,7 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
             <CardHeader>
               <CardTitle>Aumentar saldo registrado</CardTitle>
               <CardDescription>
-                Retanqueo administrativo: registra un aumento manual del saldo y recalcula el plan. CrediOS no ofrece ni aprueba creditos.
+                Retanqueo administrativo: registra un aumento manual del saldo y recalcula el plan. CrediOS solo organiza el registro que indiques.
               </CardDescription>
             </CardHeader>
             <CardContent>

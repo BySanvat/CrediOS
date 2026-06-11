@@ -6,6 +6,7 @@ import { getSupabasePublishableKey, getSupabaseUrl } from "./env";
 export type SupabaseBrowserConfig = {
   url?: string;
   publishableKey?: string;
+  googleEnabled?: boolean;
 };
 
 export function createClient(config?: SupabaseBrowserConfig) {

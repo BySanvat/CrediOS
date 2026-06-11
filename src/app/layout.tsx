@@ -17,7 +17,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-            "try{const r=document.documentElement;const t=localStorage.getItem('credios-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.classList.toggle('dark',d);const m=document.cookie.match(/(?:^|; )credios_accent_color=([^;]+)/);const a=localStorage.getItem('credios-accent-color')||(m&&decodeURIComponent(m[1]))||'apple';if(['apple','coral','teal','lavender','sky','rose','amber','sage'].includes(a))r.dataset.accent=a}catch(e){}",
+            "try{const r=document.documentElement;const t=localStorage.getItem('credios-theme');const d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.classList.toggle('dark',d);const m=document.cookie.match(/(?:^|; )credios_accent_color=([^;]+)/);let a=localStorage.getItem('credios-accent-color')||(m&&decodeURIComponent(m[1]))||'apple-green';const map={apple:'apple-green',sage:'apple-green',teal:'mint',coral:'peach',amber:'honey'};a=map[a]||a;if(['apple-green','mint','sky','lavender','rose','peach','honey'].includes(a))r.dataset.accent=a}catch(e){}",
           }}
         />
       </head>
