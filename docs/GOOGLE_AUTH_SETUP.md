@@ -15,6 +15,8 @@ Si alguna de esas variables no esta en `true`, la UI muestra un mensaje claro y 
 Unsupported provider: provider is not enabled
 ```
 
+Si Supabase devuelve un error al callback OAuth, CrediOS redirige a `/login` con un mensaje amigable usando `auth_error`. No debe quedar una pantalla JSON como experiencia final.
+
 ## Configuracion requerida en Supabase
 
 1. Entrar al proyecto de Supabase.

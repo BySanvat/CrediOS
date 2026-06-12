@@ -37,15 +37,15 @@ export default async function SettingsPage() {
     <>
       <PageHeader
         title="Configuracion"
-        description="Perfil, workspace, moneda base y preparacion para deploy. El tema claro/oscuro se controla desde la barra superior."
+        description="Perfil, moneda base y preparacion para deploy. El tema claro/oscuro se controla desde la barra superior."
         icon="settings"
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Perfil y workspace</CardTitle>
-            <CardDescription>Los cambios se validan en servidor y respetan el workspace actual.</CardDescription>
+            <CardTitle>Perfil</CardTitle>
+            <CardDescription>Los cambios se validan en servidor y respetan el espacio actual.</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={updateSettingsAction} className="grid gap-4">
@@ -54,9 +54,6 @@ export default async function SettingsPage() {
               </Field>
               <Field label="Correo">
                 <Input value={profile?.email ?? ctx.user.email ?? ""} readOnly />
-              </Field>
-              <Field label="Nombre del workspace">
-                <Input name="workspaceName" defaultValue={ctx.workspace.name} required />
               </Field>
               <Field label="Moneda base">
                 <Select name="defaultCurrency" defaultValue={ctx.workspace.default_currency}>
@@ -123,20 +120,20 @@ export default async function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Preparacion Vercel/Supabase</CardTitle>
+            <CardTitle>Preparacion Cloudflare/Supabase</CardTitle>
             <CardDescription>Variables requeridas para correr y desplegar.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 text-sm text-muted">
               <p>
                 Configura `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`,
-                `DATABASE_URL` y `NEXT_PUBLIC_APP_URL` en local y Vercel.
+                `DATABASE_URL` y `NEXT_PUBLIC_APP_URL` en local y Cloudflare Pages.
               </p>
               <p>
                 Aplica la migracion `src/lib/db/migrations/0001_initial_schema_and_rls.sql` antes de usar datos reales.
               </p>
               <p>
-                No uses `service_role` en el navegador y no guardes credenciales reales en el repositorio.
+                No uses claves administrativas en el navegador y no guardes credenciales reales en el repositorio.
               </p>
             </div>
           </CardContent>

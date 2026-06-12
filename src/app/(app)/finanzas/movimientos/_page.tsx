@@ -11,6 +11,7 @@ import { getPeriodRange, periodFromSearchParam } from "@/domain/personal-finance
 import { PeriodTabs } from "@/features/personal-finance/period-tabs";
 import { QuickAddComposer } from "@/features/personal-finance/quick-add-composer";
 import {
+  archivePersonalCategoryAction,
   archivePersonalTransactionAction,
   createPersonalCategoryAction,
   createPersonalTransactionAction,
@@ -66,7 +67,7 @@ export default async function PersonalTransactionsPage({
           </CardHeader>
           <CardContent>
             <form action={createPersonalTransactionAction} className="grid gap-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <Field label="Direccion">
                   <Select name="type" defaultValue="expense">
                     <option value="expense">Egreso</option>
@@ -81,6 +82,7 @@ export default async function PersonalTransactionsPage({
                         {category.name}
                       </option>
                     ))}
+                    <option value="__create" disabled>Crear categoria</option>
                   </Select>
                 </Field>
               </div>
@@ -132,6 +134,22 @@ export default async function PersonalTransactionsPage({
               </div>
               <Button type="submit" variant="secondary">Crear categoria</Button>
             </form>
+            <div className="mt-5 grid gap-2">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background p-3 dark:bg-surface-elevated">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{category.name}</p>
+                    <p className="text-xs text-muted">{category.type === "income" ? "Ingreso" : "Egreso"}</p>
+                  </div>
+                  <form action={archivePersonalCategoryAction}>
+                    <input type="hidden" name="id" value={category.id} />
+                    <Button type="submit" size="sm" variant="ghost">
+                      Archivar
+                    </Button>
+                  </form>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -163,7 +181,7 @@ export default async function PersonalTransactionsPage({
                     </summary>
                     <form action={updatePersonalTransactionAction} className="mt-4 grid gap-4 border-t border-border pt-4">
                       <input type="hidden" name="id" value={transaction.id} />
-                      <div className="grid gap-4 sm:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                         <Field label="Direccion">
                           <Select name="type" defaultValue={transaction.type}>
                             <option value="expense">Egreso</option>
@@ -178,6 +196,7 @@ export default async function PersonalTransactionsPage({
                                 {category.name}
                               </option>
                             ))}
+                            <option value="__create" disabled>Crear categoria</option>
                           </Select>
                         </Field>
                         <Field label="Monto">

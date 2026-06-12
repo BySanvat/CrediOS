@@ -75,7 +75,7 @@ export function BottomNavSettings({ items }: { items: NavigationItem[] }) {
   }
 
   return (
-    <div className="grid gap-3">
+    <div className="grid select-none gap-3">
       <div className="grid gap-2">
         {orderedItems.map((item, index) => {
           const disabled = hidden.includes(item.href);

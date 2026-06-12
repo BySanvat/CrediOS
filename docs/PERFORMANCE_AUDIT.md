@@ -15,5 +15,10 @@ El usuario percibia esperas al navegar entre paginas dinamicas. La app depende d
 
 - Medir en produccion con Cloudflare Analytics o Web Vitals.
 - Revisar queries del dashboard si el volumen crece.
+- Round 5 prioriza `/finanzas` como inicio para reducir saltos perceptivos despues del login.
+- La barra inferior y el drawer usan rutas directas y evitan duplicar navegacion pesada.
+- El resultado del simulador se calcula en cliente y solo guarda cuando el usuario confirma.
+- El detalle de credito oculta historiales largos detras de modales para reducir altura inicial.
+- Los planes de pago se mantienen colapsados dentro de `details`.
 - Cargar graficas con lazy loading si aparecen rutas con mucho JS.
 - No cachear datos financieros privados en service worker.

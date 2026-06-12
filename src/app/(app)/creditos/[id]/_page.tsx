@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CreditHistoryDialog } from "@/features/credits/credit-history-dialog";
 import { ExtraPaymentForm } from "@/features/credits/extra-payment-form";
 import { IncreaseCreditDialog } from "@/features/credits/increase-credit-dialog";
 import { SmartPaymentDialog } from "@/features/credits/smart-payment-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
@@ -99,41 +98,6 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
         )}`}
         icon="credit"
         action={
-          <Button asChild variant="secondary">
-            <Link href="/creditos">Volver</Link>
-          </Button>
-        }
-      />
-
-      <div className="grid gap-4 md:grid-cols-5">
-        <Metric label="Principal" value={formatMoneyCOP(credit.principal_cents)} />
-        <Metric label="Capital pendiente" value={formatMoneyCOP(credit.current_balance_cents)} />
-        <Metric label="Interes corrido" value={formatMoneyCOP(payoffQuote.accruedInterestCents)} />
-        <Metric label="Pago total hoy" value={formatMoneyCOP(payoffQuote.payoffCents)} />
-        <Metric label="Pagado" value={formatMoneyCOP(paidAmount)} />
-      </div>
-
-      <Card className="mt-4">
-        <CardContent className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
-            <p className="text-sm font-medium">Saldo estimado al dia de hoy</p>
-            <p className="text-sm text-muted">
-              Incluye intereses corridos desde {payoffQuote.accruesFromDate} hasta {payoffQuote.asOfDate}.
-              El calculo es bajo demanda y no hace escrituras diarias.
-            </p>
-          </div>
-          <p className="text-2xl font-semibold tabular text-accent">{formatMoneyCOP(payoffQuote.payoffCents)}</p>
-        </CardContent>
-      </Card>
-
-      <Card className="mt-4">
-        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold">Acciones rapidas</p>
-            <p className="mt-1 text-sm leading-6 text-muted">
-              Usa + para aumentar el saldo registrado y - para pagar o disminuir la cuota pendiente mas cercana.
-            </p>
-          </div>
           <div className="flex items-center gap-3">
             <IncreaseCreditDialog
               creditId={credit.id}
@@ -150,6 +114,54 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
                 trigger="round"
               />
             ) : null}
+          </div>
+        }
+      />
+
+      <Card className="mt-4">
+        <CardContent className="grid gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">Resumen del credito</p>
+              <p className="mt-1 text-sm text-muted">
+                Incluye interes corrido desde {payoffQuote.accruesFromDate} hasta {payoffQuote.asOfDate}.
+              </p>
+            </div>
+            <p className="text-2xl font-semibold tabular text-accent">{formatMoneyCOP(payoffQuote.payoffCents)}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Metric label="Monto inicial" value={formatMoneyCOP(credit.principal_cents)} />
+            <Metric label="Capital pendiente" value={formatMoneyCOP(credit.current_balance_cents)} />
+            <Metric label="Intereses cobrados" value={formatMoneyCOP(payoffQuote.accruedInterestCents)} />
+            <Metric label="Pago total hoy" value={formatMoneyCOP(payoffQuote.payoffCents)} />
+            <Metric label="Pagado a hoy" value={formatMoneyCOP(paidAmount)} />
+          </div>
+          <p className="text-xs leading-5 text-muted">
+            El calculo de interes corrido es bajo demanda y no hace escrituras diarias.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4">
+        <CardContent className="grid gap-3 sm:grid-cols-3">
+          <div className="sm:col-span-1">
+            <p className="text-sm font-semibold">Acciones</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Gestiona pagos, abonos e historial sin alargar la vista principal.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:col-span-2 sm:grid-cols-3">
+            <ExtraPaymentForm
+              creditId={credit.id}
+              currentBalanceCents={credit.current_balance_cents}
+              rateValue={credit.rate_value}
+              rateType={credit.rate_type as RateType}
+              termMonths={Math.max(1, pendingInstallments.length || credit.term_months)}
+              monthlyFeeCents={credit.monthly_fee_cents}
+              monthlyInsuranceCents={credit.monthly_insurance_cents}
+            />
+            <CreditHistoryDialog title="Pagos registrados" type="payments" rows={payments ?? []} />
+            <CreditHistoryDialog title="Abonos registrados" type="extra" rows={extraPayments ?? []} />
           </div>
         </CardContent>
       </Card>
@@ -221,96 +233,21 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
           </details>
         </Card>
 
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pago inteligente</CardTitle>
-              <CardDescription>
-                CrediOS elige automaticamente la cuota vencida o pendiente mas cercana.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {nextPayable ? (
-                <div className="grid gap-4">
-                  <div className="rounded-3xl border border-border bg-muted/30 p-4">
-                    <p className="text-sm text-muted">
-                      Proxima cuota pagable: #{nextPayable.installment_number} - {nextPayable.due_date}
-                    </p>
-                    <p className="mt-2 text-2xl font-semibold tabular">
-                      {formatMoneyCOP(nextPayableRemainingCents)}
-                    </p>
-                  </div>
-                  <SmartPaymentDialog
-                    creditId={credit.id}
-                    installmentId={nextPayable.id}
-                    installmentLabel={`Cuota #${nextPayable.installment_number} - ${nextPayable.due_date}`}
-                    requiredCents={nextPayableRemainingCents}
-                    payoffCents={payoffQuote.payoffCents}
-                  />
-                </div>
-              ) : (
-                <EmptyState title="Sin cuotas por pagar" text="No hay cuotas pendientes para registrar pago." />
-              )}
-            </CardContent>
-          </Card>
-
-          <ExtraPaymentForm
-            creditId={credit.id}
-            currentBalanceCents={credit.current_balance_cents}
-            rateValue={credit.rate_value}
-            rateType={credit.rate_type as RateType}
-            termMonths={Math.max(1, pendingInstallments.length || credit.term_months)}
-            monthlyFeeCents={credit.monthly_fee_cents}
-            monthlyInsuranceCents={credit.monthly_insurance_cents}
-          />
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Pagos registrados</CardTitle>
+            <CardTitle>Cuota proxima</CardTitle>
+            <CardDescription>La accion - superior abre el pago con esta cuota cargada automaticamente.</CardDescription>
           </CardHeader>
           <CardContent>
-            {(payments ?? []).length ? (
-              <div className="grid gap-3">
-                {(payments ?? []).map((payment) => (
-                  <div key={payment.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium">{payment.payment_date}</p>
-                      <p className="font-semibold tabular">{formatMoneyCOP(payment.amount_cents)}</p>
-                    </div>
-                    <p className="mt-1 text-sm text-muted">{payment.method || "Sin metodo"} - {payment.notes}</p>
-                  </div>
-                ))}
+            {nextPayable ? (
+              <div className="rounded-3xl border border-border bg-muted/30 p-4">
+                <p className="text-sm text-muted">
+                  #{nextPayable.installment_number} - {nextPayable.due_date}
+                </p>
+                <p className="mt-2 text-2xl font-semibold tabular">{formatMoneyCOP(nextPayableRemainingCents)}</p>
               </div>
             ) : (
-              <EmptyState title="Sin pagos" text="Registra pagos para ver historial." />
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Abonos registrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(extraPayments ?? []).length ? (
-              <div className="grid gap-3">
-                {(extraPayments ?? []).map((payment) => (
-                  <div key={payment.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium">{payment.payment_date}</p>
-                      <p className="font-semibold tabular">{formatMoneyCOP(payment.amount_cents)}</p>
-                    </div>
-                    <p className="mt-1 text-sm text-muted">
-                      {payment.strategy} - ahorro estimado {formatMoneyCOP(payment.interest_savings_cents)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState title="Sin abonos" text="Simula y aplica abonos para comparar estrategias." />
+              <EmptyState title="Sin cuotas por pagar" text="No hay cuotas pendientes para registrar pago." />
             )}
           </CardContent>
         </Card>

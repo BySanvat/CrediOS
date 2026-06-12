@@ -22,7 +22,7 @@ export function AuthForm({
 }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => params.get("auth_error"));
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -66,7 +66,7 @@ export function AuthForm({
       if (mode === "login") {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
-        router.push(params.get("next") ?? "/dashboard");
+        router.push(params.get("next") ?? "/finanzas");
         router.refresh();
       } else {
         const { data, error: signUpError } = await supabase.auth.signUp({
@@ -78,7 +78,7 @@ export function AuthForm({
         });
         if (signUpError) throw signUpError;
         if (data.session) {
-          router.push("/dashboard");
+          router.push("/finanzas");
           router.refresh();
           return;
         }
@@ -108,7 +108,7 @@ export function AuthForm({
       }
 
       const supabase = createClient(supabaseConfig);
-      const next = params.get("next") ?? "/dashboard";
+      const next = params.get("next") ?? "/finanzas";
       const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",

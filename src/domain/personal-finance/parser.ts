@@ -55,7 +55,7 @@ function guessCategory(text: string, type: PersonalTransactionType) {
     const score = category.keywords.reduce((sum, keyword) => sum + (text.includes(keyword) ? 1 : 0), 0);
     if (score > (best?.score ?? 0)) best = { name: category.name, score };
   }
-  return best && best.score > 0 ? best.name : type === "income" ? "Ingresos extra" : "Otros gastos";
+  return best && best.score > 0 ? best.name : type === "income" ? "Otros ingresos" : "Otros";
 }
 
 function cleanNote(text: string, amountToken: string) {

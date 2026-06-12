@@ -2,11 +2,11 @@
   "name": "CrediOS",
   "short_name": "CrediOS",
   "description": "Gestion financiera clara para creditos, deudas y finanzas personales.",
-  "start_url": "/dashboard",
+  "start_url": "/finanzas",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FCFBF7",
-  "theme_color": "#79B985",
+  "theme_color": "#FCFBF7",
   "icons": [
     {
       "src": "/icons/credios-icon.svg",

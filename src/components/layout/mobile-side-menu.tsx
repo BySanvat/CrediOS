@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppIcon, type IconName } from "@/components/ui/app-icon";
 import { cn } from "@/lib/utils/cn";
@@ -21,6 +21,7 @@ export function MobileSideMenu({
   workspaceName: string;
 }) {
   const [open, setOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -59,10 +60,19 @@ export function MobileSideMenu({
           "fixed inset-y-0 left-0 z-50 flex h-dvh w-[min(88vw,22rem)] -translate-x-full flex-col overflow-hidden border-r border-white/10 bg-[rgba(8,12,18,0.78)] text-white shadow-[0_28px_90px_rgba(0,0,0,0.38)] backdrop-blur-[18px] transition duration-200 lg:hidden",
           open ? "translate-x-0" : "",
         )}
+        onPointerDown={(event) => {
+          touchStartX.current = event.clientX;
+        }}
+        onPointerUp={(event) => {
+          if (touchStartX.current == null) return;
+          const deltaX = event.clientX - touchStartX.current;
+          touchStartX.current = null;
+          if (deltaX < -70) setOpen(false);
+        }}
         aria-hidden={!open}
       >
         <div className="flex items-start justify-between gap-3 border-b border-white/10 p-4">
-          <Link href="/dashboard" onClick={() => setOpen(false)} className="min-w-0">
+          <Link href="/finanzas" onClick={() => setOpen(false)} className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-accent">CrediOS by Sanvat</p>
             <p className="mt-1 truncate text-lg font-semibold">{workspaceName}</p>
           </Link>

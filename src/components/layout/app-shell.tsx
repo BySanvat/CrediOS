@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { type UsageMode, usageModeCopy } from "@/lib/usage-mode";
 
 export const appNavItems: NavigationItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: "dashboard", group: "Inicio" },
+  { href: "/finanzas", label: "Mis finanzas", icon: "wallet", group: "Inicio" },
   { href: "/simulador", label: "Simulador", icon: "calculator", group: "Inicio" },
-  { href: "/finanzas", label: "Mis finanzas", icon: "wallet", group: "Mis finanzas" },
   { href: "/finanzas/movimientos", label: "Movimientos", icon: "swap", group: "Mis finanzas" },
   { href: "/finanzas/presupuestos", label: "Presupuestos", icon: "target", group: "Mis finanzas" },
   { href: "/finanzas/recurrentes", label: "Fijos mensuales", icon: "repeat", group: "Mis finanzas" },
@@ -34,13 +33,14 @@ export function AppShell({
 }) {
   const modeCopy = usageMode ? usageModeCopy[usageMode] : null;
   const visibleNavItems = appNavItems.filter((item) => showCreditTools || item.group !== "Creditos y cartera");
+  const displayWorkspaceName = normalizeWorkspaceName(workspaceName);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-72 overflow-y-auto border-r border-border bg-card/95 p-5 shadow-[var(--shadow-soft)] backdrop-blur lg:block dark:bg-surface-elevated/95">
-        <Link href="/dashboard" className="block">
+        <Link href="/finanzas" className="block">
           <p className="text-sm font-semibold text-accent">CrediOS by Sanvat</p>
-          <p className="mt-1 text-lg font-semibold">{workspaceName}</p>
+          <p className="mt-1 text-lg font-semibold">{displayWorkspaceName}</p>
           {modeCopy ? <p className="mt-1 text-xs text-muted">{modeCopy.label}</p> : null}
         </Link>
         <nav className="mt-8 grid gap-1">
@@ -63,10 +63,10 @@ export function AppShell({
         <header className="sticky top-0 z-20 border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:px-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <MobileSideMenu items={visibleNavItems} workspaceName={workspaceName} />
+              <MobileSideMenu items={visibleNavItems} workspaceName={displayWorkspaceName} />
               <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted">Workspace</p>
-                <p className="truncate font-semibold">{workspaceName}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted">By Sanvat</p>
+                <p className="truncate font-semibold">{displayWorkspaceName}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -89,4 +89,12 @@ export function AppShell({
       <BottomNavigation items={visibleNavItems} usageMode={usageMode} showCreditTools={showCreditTools} />
     </div>
   );
+}
+
+function normalizeWorkspaceName(name: string) {
+  const normalized = name.trim();
+  if (!normalized || /^qa\b/i.test(normalized) || normalized.toLowerCase().includes("workspace")) {
+    return "CrediOS Finanzas";
+  }
+  return normalized;
 }

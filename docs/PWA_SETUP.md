@@ -10,7 +10,7 @@ CrediOS incluye `public/manifest.webmanifest` e iconos SVG locales:
 El manifest usa:
 
 - `display: standalone`
-- `start_url: /dashboard`
+- `start_url: /finanzas`
 - `theme_color: #79B985`
 - `background_color: #FCFBF7`
 

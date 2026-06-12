@@ -22,6 +22,12 @@ const simulationSchema = z.object({
   notes: z.string().optional(),
 });
 
+export type SaveSimulationState = {
+  ok: boolean;
+  error?: string;
+  id?: string;
+};
+
 export async function saveSimulationAction(formData: FormData) {
   const ctx = await getAppContext();
   if (!ctx.configured) {
@@ -67,6 +73,71 @@ export async function saveSimulationAction(formData: FormData) {
 
   revalidatePath("/simulaciones");
   redirect("/simulaciones");
+}
+
+export async function saveSimulationStateAction(
+  _state: SaveSimulationState,
+  formData: FormData,
+): Promise<SaveSimulationState> {
+  try {
+    const ctx = await getAppContext();
+    if (!ctx.configured) {
+      return { ok: false, error: "Supabase no esta configurado para guardar simulaciones." };
+    }
+
+    const parsed = simulationSchema.parse(Object.fromEntries(formData));
+    const principalCents = moneyToCents(parsed.amount);
+    const monthlyFeeCents = moneyToCents(parsed.monthlyFee);
+    const monthlyInsuranceCents = moneyToCents(parsed.monthlyInsurance);
+    const upfrontFeeCents = moneyToCents(parsed.upfrontFee);
+    const summary = calculateLoanSummary({
+      principalCents,
+      rateValue: parsed.rateValue,
+      rateType: parsed.rateType,
+      termMonths: parsed.termMonths,
+      startDate: parsed.startDate,
+      monthlyFeeCents,
+      monthlyInsuranceCents,
+      upfrontFeeCents,
+    });
+
+    const { data, error } = await ctx.supabase
+      .from("simulations")
+      .insert({
+        workspace_id: ctx.workspace.id,
+        owner_id: ctx.user.id,
+        name: parsed.name,
+        product_type: parsed.productType,
+        principal_cents: principalCents,
+        rate_value: parsed.rateValue,
+        rate_type: parsed.rateType,
+        term_months: parsed.termMonths,
+        start_date: parsed.startDate,
+        monthly_fee_cents: monthlyFeeCents,
+        monthly_insurance_cents: monthlyInsuranceCents,
+        upfront_fee_cents: upfrontFeeCents,
+        notes: parsed.notes || null,
+        summary,
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) {
+      return {
+        ok: false,
+        error: error?.message ?? "No pudimos guardar la simulacion. Revisa los datos e intentalo de nuevo.",
+      };
+    }
+
+    revalidatePath("/simulaciones");
+    return { ok: true, id: data.id };
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : "";
+    return {
+      ok: false,
+      error: message || "No pudimos guardar la simulacion. Revisa los datos e intentalo de nuevo.",
+    };
+  }
 }
 
 export async function archiveSimulationAction(formData: FormData) {
@@ -140,6 +211,16 @@ export async function convertSimulationToCreditAction(formData: FormData) {
   const id = z.string().uuid().parse(formData.get("id"));
   const clientIdRaw = formData.get("clientId")?.toString();
   const clientId = clientIdRaw ? z.string().uuid().parse(clientIdRaw) : null;
+  const creditPurpose = z
+    .enum(["personal", "third_party", "profitable_placement"])
+    .default("personal")
+    .parse(formData.get("creditPurpose")?.toString() || "personal");
+  const countPaymentsAsIncome =
+    creditPurpose === "profitable_placement" || formData.get("countPaymentsAsIncome") === "on";
+  const countInterestAsProfit =
+    creditPurpose === "profitable_placement" || formData.get("countInterestAsProfit") === "on";
+  const affectsPersonalFinance =
+    creditPurpose === "personal" || creditPurpose === "profitable_placement" || countPaymentsAsIncome;
 
   const { data: simulation, error } = await ctx.supabase
     .from("simulations")
@@ -152,7 +233,13 @@ export async function convertSimulationToCreditAction(formData: FormData) {
     throw new Error(error?.message ?? "No se encontro la simulacion.");
   }
 
-  const summary = simulation.summary as LoanSummary;
+  const summary = {
+    ...(simulation.summary as LoanSummary),
+    creditPurpose,
+    affectsPersonalFinance,
+    countPaymentsAsIncome,
+    countInterestAsProfit,
+  };
   const { data: credit, error: creditError } = await ctx.supabase
     .from("credit_accounts")
     .insert({
@@ -173,7 +260,7 @@ export async function convertSimulationToCreditAction(formData: FormData) {
       monthly_insurance_cents: simulation.monthly_insurance_cents,
       summary,
       notes: simulation.notes,
-      is_personal: !clientId,
+      is_personal: creditPurpose === "personal" || !clientId,
     })
     .select("id,name,created_at")
     .single();
@@ -206,7 +293,13 @@ export async function convertSimulationToCreditAction(formData: FormData) {
     entity_type: "credit_account",
     entity_id: credit.id,
     action: "simulation_converted",
-    metadata: { sourceSimulationId: simulation.id },
+    metadata: {
+      sourceSimulationId: simulation.id,
+      creditPurpose,
+      affectsPersonalFinance,
+      countPaymentsAsIncome,
+      countInterestAsProfit,
+    },
   });
 
   revalidatePath("/creditos");

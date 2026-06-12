@@ -4,11 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, Select } from "@/components/ui/field";
 import { formatMoneyCOP } from "@/domain/finance";
+import { ConvertSimulationDialog } from "@/features/simulator/convert-simulation-dialog";
 import {
   archiveSimulationAction,
-  convertSimulationToCreditAction,
   duplicateSimulationAction,
 } from "@/server/actions/simulations.actions";
 import { getAppContext } from "@/server/context";
@@ -73,23 +72,8 @@ export default async function SimulationsPage() {
                     <SmallMetric label="Total pagado" value={formatMoneyCOP(summary.totalPaidCents ?? 0)} />
                     <SmallMetric label="Fecha final" value={summary.finalPaymentDate ?? "-"} />
                   </div>
-                  <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
-                    <form action={convertSimulationToCreditAction} className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                      <input type="hidden" name="id" value={simulation.id} />
-                      <Field label="Asignar cliente opcional">
-                        <Select name="clientId" defaultValue="">
-                          <option value="">Personal / sin cliente</option>
-                          {(clients ?? []).map((client) => (
-                            <option key={client.id} value={client.id}>
-                              {client.full_name}
-                            </option>
-                          ))}
-                        </Select>
-                      </Field>
-                      <Button type="submit" className="self-end">
-                        Convertir
-                      </Button>
-                    </form>
+                  <div className="grid gap-3 sm:grid-cols-[auto_auto_auto]">
+                    <ConvertSimulationDialog simulationId={simulation.id} clients={clients ?? []} />
                     <form action={duplicateSimulationAction} className="self-end">
                       <input type="hidden" name="id" value={simulation.id} />
                       <Button type="submit" variant="secondary">

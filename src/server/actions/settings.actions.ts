@@ -6,7 +6,6 @@ import { getAppContext } from "@/server/context";
 
 const settingsSchema = z.object({
   fullName: z.string().optional(),
-  workspaceName: z.string().min(2),
   defaultCurrency: z.string().default("COP"),
 });
 
@@ -22,7 +21,7 @@ export async function updateSettingsAction(formData: FormData) {
     .eq("id", ctx.user.id);
   const workspaceUpdate = ctx.supabase
     .from("workspaces")
-    .update({ name: parsed.workspaceName, default_currency: parsed.defaultCurrency })
+    .update({ default_currency: parsed.defaultCurrency })
     .eq("id", ctx.workspace.id)
     .eq("owner_id", ctx.user.id);
 

@@ -10,7 +10,7 @@ describe("personal finance parser", () => {
     expect(parsed.amountCents).toBe(2_800_000);
     expect(parsed.occurredAt).toBe("2026-06-11");
     expect(parsed.type).toBe("expense");
-    expect(parsed.suggestedCategoryName).toBe("Comida");
+    expect(parsed.suggestedCategoryName).toBe("Alimentacion");
     expect(parsed.noteNormalized).toBe("almuerzo");
   });
 
@@ -35,7 +35,7 @@ describe("personal finance parser", () => {
     const parsed = parseQuickAdd("coffee 5 yesterday", today);
 
     expect(parsed.occurredAt).toBe("2026-06-10");
-    expect(parsed.suggestedCategoryName).toBe("Comida");
+    expect(parsed.suggestedCategoryName).toBe("Alimentacion");
   });
 });
 

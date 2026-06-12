@@ -44,6 +44,10 @@ export function SmartPaymentDialog({
     setAmount(String(Math.round(payoffCents / 100)));
   }
 
+  function useInstallmentAmount() {
+    setAmount(String(Math.round(requiredCents / 100)));
+  }
+
   return (
     <>
       {trigger === "round" ? (
@@ -68,7 +72,7 @@ export function SmartPaymentDialog({
           <div className="soft-enter flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-[1.5rem] border border-border bg-surface-modal shadow-[var(--shadow-soft)]">
             <div className="flex items-start justify-between gap-4 border-b border-border p-5">
               <div>
-                <p className="text-sm font-semibold text-accent">Pago inteligente</p>
+                <p className="text-sm font-semibold text-accent">Registrar pago</p>
                 <h2 className="mt-1 text-xl font-semibold">{installmentLabel}</h2>
                 <p className="mt-1 text-sm leading-6 text-muted">
                   CrediOS aplica primero la cuota vencida o pendiente mas cercana.
@@ -115,9 +119,14 @@ export function SmartPaymentDialog({
                   </div>
                 ) : null}
 
-                <Button type="button" variant="secondary" onClick={usePayoffAmount} className="w-full sm:w-fit">
-                  Pago total al dia de hoy
-                </Button>
+                <div className="grid grid-cols-2 gap-2 sm:flex">
+                  <Button type="button" variant="secondary" onClick={usePayoffAmount} className="w-full sm:w-fit">
+                    Pago total
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={useInstallmentAmount} className="w-full sm:w-fit">
+                    Cuota
+                  </Button>
+                </div>
 
                 {excessCents > 0 ? (
                   <div className="grid gap-3 rounded-[1.2rem] border border-accent/40 bg-accent-soft/60 p-4">

@@ -64,7 +64,7 @@ export function QuickAddComposer({ categories }: { categories: CategoryOption[] 
             </div>
           </Field>
 
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="Tipo">
               <Select
                 name="movementKind"
@@ -85,6 +85,7 @@ export function QuickAddComposer({ categories }: { categories: CategoryOption[] 
                       {category.name}
                     </option>
                   ))}
+                <option value="__create" disabled>Crear categoria</option>
               </Select>
             </Field>
             <DatePickerField name="occurredAt" label="Fecha" defaultValue={parsed.occurredAt} key={parsed.occurredAt} />

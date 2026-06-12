@@ -16,7 +16,7 @@ export default async function CreditsPage() {
   const ctx = await getAppContext();
   if (!ctx.configured) return null;
 
-  const [{ data: credits }, { data: clients }] = await Promise.all([
+  const [{ data: credits }, { data: clients }, { data: payments }] = await Promise.all([
     ctx.supabase
       .from("credit_accounts")
       .select("*, clients(full_name)")
@@ -29,9 +29,14 @@ export default async function CreditsPage() {
       .eq("workspace_id", ctx.workspace.id)
       .is("archived_at", null)
       .order("full_name"),
+    ctx.supabase
+      .from("payments")
+      .select("credit_account_id,amount_cents,payment_date")
+      .eq("workspace_id", ctx.workspace.id),
   ]);
 
   const creditList = credits ?? [];
+  const businessSummary = buildBusinessSummary(creditList, payments ?? []);
 
   return (
     <>
@@ -42,6 +47,23 @@ export default async function CreditsPage() {
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        {businessSummary.count ? (
+          <Card className="xl:col-span-2">
+            <CardHeader>
+              <CardTitle>Resumen del negocio</CardTitle>
+              <CardDescription>Solo incluye colocaciones rentables y creditos marcados para medir ingreso o ganancia.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+              <BusinessMetric label="Capital activo" value={formatMoneyCOP(businessSummary.activeCapitalCents)} />
+              <BusinessMetric label="Capital recuperado" value={formatMoneyCOP(businessSummary.recoveredCapitalCents)} />
+              <BusinessMetric label="Dinero colocado" value={formatMoneyCOP(businessSummary.principalCents)} />
+              <BusinessMetric label="Cartera activa" value={formatMoneyCOP(businessSummary.activeCapitalCents)} />
+              <BusinessMetric label="Utilidad proyectada" value={formatMoneyCOP(businessSummary.projectedProfitCents)} />
+              <BusinessMetric label="Pagos del mes" value={formatMoneyCOP(businessSummary.monthPaymentsCents)} />
+            </CardContent>
+          </Card>
+        ) : null}
+
         <Card>
           <CardHeader>
             <CardTitle>Crear deuda administrada</CardTitle>
@@ -159,4 +181,56 @@ export default async function CreditsPage() {
       </div>
     </>
   );
+}
+
+function BusinessMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.1rem] border border-border bg-background p-4 dark:bg-surface-elevated">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-2 text-lg font-semibold tabular">{value}</p>
+    </div>
+  );
+}
+
+function buildBusinessSummary(
+  credits: Array<{
+    id: string;
+    principal_cents: number;
+    current_balance_cents: number;
+    summary: unknown;
+  }>,
+  payments: Array<{ credit_account_id: string | null; amount_cents: number; payment_date: string }>,
+) {
+  const businessCredits = credits.filter((credit) => {
+    const summary = credit.summary as {
+      creditPurpose?: string;
+      countPaymentsAsIncome?: boolean;
+      countInterestAsProfit?: boolean;
+      totalInterestCents?: number;
+    } | null;
+    return (
+      summary?.creditPurpose === "profitable_placement" ||
+      summary?.countPaymentsAsIncome ||
+      summary?.countInterestAsProfit
+    );
+  });
+  const ids = new Set(businessCredits.map((credit) => credit.id));
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
+  return {
+    count: businessCredits.length,
+    principalCents: businessCredits.reduce((sum, credit) => sum + credit.principal_cents, 0),
+    activeCapitalCents: businessCredits.reduce((sum, credit) => sum + credit.current_balance_cents, 0),
+    recoveredCapitalCents: businessCredits.reduce(
+      (sum, credit) => sum + Math.max(0, credit.principal_cents - credit.current_balance_cents),
+      0,
+    ),
+    projectedProfitCents: businessCredits.reduce((sum, credit) => {
+      const summary = credit.summary as { totalInterestCents?: number } | null;
+      return sum + (summary?.totalInterestCents ?? 0);
+    }, 0),
+    monthPaymentsCents: payments
+      .filter((payment) => payment.credit_account_id && ids.has(payment.credit_account_id) && payment.payment_date.startsWith(currentMonth))
+      .reduce((sum, payment) => sum + payment.amount_cents, 0),
+  };
 }

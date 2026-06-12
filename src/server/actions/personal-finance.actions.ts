@@ -62,6 +62,21 @@ export async function createPersonalCategoryAction(formData: FormData) {
   revalidateFinance();
 }
 
+export async function archivePersonalCategoryAction(formData: FormData) {
+  const ctx = await getAppContext();
+  if (!ctx.configured) return;
+
+  const id = z.string().uuid().parse(formData.get("id"));
+  const { error } = await ctx.supabase
+    .from("personal_categories")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("workspace_id", ctx.workspace.id)
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateFinance();
+}
+
 const transactionSchema = z.object({
   id: z.string().uuid().optional(),
   categoryId: z.string().uuid().optional().or(z.literal("")),
