@@ -179,6 +179,14 @@ export async function recordSmartPaymentAction(_state: SmartPaymentState, formDa
       throw new Error(error.message);
     }
 
+    await createPersonalFinanceMovementForCreditPayment({
+      ctx,
+      credit,
+      paymentDate: parsed.paymentDate,
+      amountCents,
+      interestCents: Math.max(0, Math.round(installment.interest_cents * (newRatio - previousRatio))),
+    });
+
     revalidatePath(`/creditos/${parsed.creditId}`);
     revalidatePath("/creditos");
     revalidatePath("/dashboard");
@@ -246,6 +254,80 @@ export async function applyExtraPaymentAction(formData: FormData) {
 
   if (rpcError) throw new Error(rpcError.message);
 
+  await createPersonalFinanceMovementForCreditPayment({
+    ctx,
+    credit,
+    paymentDate: parsed.paymentDate,
+    amountCents,
+    interestCents: 0,
+  });
+
   revalidatePath(`/creditos/${parsed.creditId}`);
   revalidatePath("/dashboard");
+}
+
+async function createPersonalFinanceMovementForCreditPayment({
+  ctx,
+  credit,
+  paymentDate,
+  amountCents,
+  interestCents,
+}: {
+  ctx: Awaited<ReturnType<typeof getAppContext>> & { configured: true };
+  credit: {
+    id: string;
+    name?: string | null;
+    summary?: unknown;
+    is_personal?: boolean | null;
+  };
+  paymentDate: string;
+  amountCents: number;
+  interestCents: number;
+}) {
+  const summary = credit.summary as {
+    creditPurpose?: "personal" | "third_party" | "profitable_placement";
+    affectsPersonalFinance?: boolean;
+    countPaymentsAsIncome?: boolean;
+    countInterestAsProfit?: boolean;
+  } | null;
+
+  let type: "income" | "expense" | null = null;
+  let movementAmountCents = 0;
+  let notePrefix = "Pago credito";
+
+  if (summary?.creditPurpose === "personal" || (!summary?.creditPurpose && credit.is_personal)) {
+    type = "expense";
+    movementAmountCents = amountCents;
+    notePrefix = "Pago de deuda personal";
+  } else if (summary?.creditPurpose === "profitable_placement") {
+    type = "income";
+    movementAmountCents = summary.countInterestAsProfit ? Math.max(interestCents, 0) || amountCents : amountCents;
+    notePrefix = "Ingreso por colocacion rentable";
+  } else if (summary?.creditPurpose === "third_party") {
+    if (summary.countPaymentsAsIncome) {
+      type = "income";
+      movementAmountCents = amountCents;
+      notePrefix = "Pago recibido de tercero";
+    } else if (summary.countInterestAsProfit && interestCents > 0) {
+      type = "income";
+      movementAmountCents = interestCents;
+      notePrefix = "Interes recibido de tercero";
+    }
+  }
+
+  if (!type || movementAmountCents <= 0) return;
+
+  await ctx.supabase.from("personal_transactions").insert({
+    workspace_id: ctx.workspace.id,
+    category_id: null,
+    type,
+    amount_cents: movementAmountCents,
+    currency: ctx.workspace.default_currency,
+    note_raw: `${notePrefix}: ${credit.name ?? "credito"}`,
+    note_normalized: `${notePrefix}: ${credit.name ?? "credito"}`.toLowerCase(),
+    occurred_at: paymentDate,
+    source: "manual",
+    linked_credit_account_id: credit.id,
+    created_by: ctx.user.id,
+  });
 }
