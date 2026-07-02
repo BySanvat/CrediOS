@@ -27,3 +27,13 @@ Motivo: CrediOS maneja datos financieros sensibles. Cachear paginas privadas, re
 3. En Chrome/Edge movil o desktop, revisar opcion de instalar app.
 4. Verificar que la app abre en modo standalone.
 5. Confirmar que login y datos privados siguen viniendo de red/Supabase, no de cache.
+
+## APK Android
+
+La preparacion APK vive en:
+
+- `docs/APK_CAPACITOR_PREP.md`
+- `capacitor.config.ts`
+- `android/`
+
+La PWA y el APK comparten la misma app publicada en Cloudflare. Esto evita duplicar logica financiera y mantiene Supabase/RLS/RPC como fuente unica de verdad.

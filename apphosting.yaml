@@ -1,0 +1,17 @@
+# Firebase App Hosting configuration for the transition phase.
+# Firebase App Hosting is the correct Firebase target for the current Next.js app.
+# A pure React SPA can later use classic Firebase Hosting once server actions are removed.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 1024
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_ENABLED
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
